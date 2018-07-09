@@ -191,7 +191,7 @@ static rfc_propRxOutput_t rx_stats;
 #endif
 /*---------------------------------------------------------------------------*/
 /* Select power table based on the frequency band */
-#if DOT_15_4G_FREQUENCY_BAND_ID==DOT_15_4G_FREQUENCY_BAND_470
+#if DOT_15_4G_FREQUENCY_BAND_ID==DOT_15_4G_FREQUENCY_BAND_433 /*setting of TX Power for 433MHz Band*/
 #define TX_POWER_DRIVER PROP_MODE_TX_POWER_431_527
 #else
 #define TX_POWER_DRIVER PROP_MODE_TX_POWER_779_930
@@ -204,7 +204,7 @@ extern const prop_mode_tx_power_config_t TX_POWER_DRIVER[];
 #define OUTPUT_POWER_UNKNOWN 0xFFFF
 
 /* Default TX Power - position in output_power[] */
-static const prop_mode_tx_power_config_t *tx_power_current = &TX_POWER_DRIVER[1];
+static const prop_mode_tx_power_config_t *tx_power_current = &TX_POWER_DRIVER[0];/*setted max power tx*/
 /*---------------------------------------------------------------------------*/
 #ifdef PROP_MODE_CONF_LO_DIVIDER
 #define PROP_MODE_LO_DIVIDER   PROP_MODE_CONF_LO_DIVIDER

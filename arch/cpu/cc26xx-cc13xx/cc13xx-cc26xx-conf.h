@@ -75,7 +75,7 @@
 
 /* Channels count from 0 upwards in IEEE 802.15.4g */
 #ifndef IEEE802154_CONF_DEFAULT_CHANNEL
-#define IEEE802154_CONF_DEFAULT_CHANNEL                      0
+#define IEEE802154_CONF_DEFAULT_CHANNEL                      2
 #endif /* IEEE802154_CONF_DEFAULT_CHANNEL */
 
 #ifndef CSMA_CONF_ACK_WAIT_TIME
