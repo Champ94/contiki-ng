@@ -98,18 +98,19 @@ static void get_bme_reading()
 {
     int value;
 
+    //Pressure: 1; Temperature: 2; Humidity: 4;
+
     value = bme_280_sensor.value(1);
     printf("PRESS: %d\n", value);
-
+/*
     value = bme_280_sensor.value(2);
     printf("TMP: %d\n", value);
 
     value = bme_280_sensor.value(4);
-    printf("HUM: %d\n", value);
+    printf("HUM: %d\n", value);*/
 }
 /*---------------------------------------------------------------------------*/
-static void
-init_sensor_readings(void)
+static void init_sensor_readings(void)
 {
     SENSORS_ACTIVATE(bme_280_sensor);
 }

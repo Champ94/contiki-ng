@@ -1,4 +1,4 @@
-CONTIKI_PROJECT = otp3001-demo
+CONTIKI_PROJECT = tmp007-demo
 
 PLATFORMS_ONLY = srf06-cc26xx
 

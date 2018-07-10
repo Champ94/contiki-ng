@@ -37,7 +37,7 @@
  * Example projects for C1350-bp-based platform.
  * @{
  *
- * \defgroup otp3001-demo C1350-bp Demo Project
+ * \defgroup tmp007-demo C1350-bp Demo Project
  *
  *   Example project demonstrating the C1350-bp platform
  *
@@ -48,7 +48,7 @@
  *   your installation (same RDC layer, same PAN ID and RF channel), you should
  *   be able to ping6 this demo node.
  *
- * - sensors      : OTP3001 sensor is read asynchronously.
+ * - sensors      : TMP007 sensor is read asynchronously.
  *                  This example will print out readings in a staggered fashion
  *                  every 20 seconds
  *
@@ -94,8 +94,7 @@ AUTOSTART_PROCESSES(&cc26xx_demo_process);
 #define SENSOR_READING_PERIOD (CLOCK_SECOND * 20)
 #define SENSOR_READING_RANDOM (CLOCK_SECOND << 4)
 
-/*static void
-get_tmp_reading()
+static void get_tmp_reading()
 {
     int value;
 
@@ -111,43 +110,28 @@ get_tmp_reading()
 
     value = tmp_007_sensor.value(TMP_007_SENSOR_TYPE_OBJECT);
     printf("TMP: Object=%d.%03d C\n", value / 1000, value % 1000);
-}*/
-/*---------------------------------------------------------------------------*/
-static void get_light_reading()
-{
-    int value;
-    value = opt_3001_sensor.value(0);
-
-    if(value != CC26XX_SENSOR_READING_ERROR) {
-        printf("OPT: Light=%d.%02d lux\n", value / 100, value % 100);
-    } else {
-        printf("OPT: Light Read Error\n");
-    }
-
-    // The OPT will turn itself off, so we don't need to call its DEACTIVATE
 }
 /*---------------------------------------------------------------------------*/
 static void
 init_sensor_readings(void)
 {
-    //SENSORS_ACTIVATE(tmp_007_sensor);
-    SENSORS_ACTIVATE(opt_3001_sensor);
+    SENSORS_ACTIVATE(tmp_007_sensor);
 }
 /*---------------------------------------------------------------------------*/
 PROCESS_THREAD(cc26xx_demo_process, ev, data)
 {
 
     PROCESS_BEGIN();
-    printf("OTP3001 sensor demo\n");
+    printf("TMP007 sensor demo\n");
 
     etimer_set(&et, CC26XX_DEMO_LOOP_INTERVAL);
     init_sensor_readings();
 
     while(1) {
-        SENSORS_ACTIVATE(opt_3001_sensor);
+        SENSORS_ACTIVATE(tmp_007_sensor);
         PROCESS_WAIT_EVENT_UNTIL(etimer_expired(&et));
         etimer_reset(&et);
-        get_light_reading();
+        get_tmp_reading();
     }
 
     PROCESS_END();

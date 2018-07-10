@@ -40,6 +40,7 @@
 #include "tmp-007-sensor.h"
 #include "opt-3001-sensor.h"
 #include "bme280.h"
+#include <sensors.h>
 
 #include <string.h>
 /*---------------------------------------------------------------------------*/

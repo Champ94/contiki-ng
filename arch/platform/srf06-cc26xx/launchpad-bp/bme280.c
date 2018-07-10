@@ -388,7 +388,7 @@ int8_t bme280_init(struct bme280_dev *dev)
 				break;
 			}
 			/* Wait for 1 ms */
-			dev->delay_ms(1);
+			//dev->delay_ms(1);
 			--try_count;
 		}
 		/* Chip id check failed */
@@ -587,7 +587,7 @@ int8_t bme280_soft_reset(const struct bme280_dev *dev)
 		/* Write the soft reset command in the sensor */
 		rslt = bme280_set_regs(&reg_addr, &soft_rst_cmd, 1, dev);
 		/* As per data sheet, startup time is 2 ms. */
-		dev->delay_ms(2);
+		//dev->delay_ms(2);
 	}
 
 	return rslt;
@@ -1275,7 +1275,8 @@ static int8_t null_ptr_check(const struct bme280_dev *dev)
 {
 	int8_t rslt;
 
-	if ((dev == NULL) || (dev->read == NULL) || (dev->write == NULL) || (dev->delay_ms == NULL)) {
+	//if ((dev == NULL) || (dev->read == NULL) || (dev->write == NULL) || (dev->delay_ms == NULL)) {
+	if ((dev == NULL) || (dev->read == NULL) || (dev->write == NULL)) {
 		/* Device structure pointer is not valid */
 		rslt = BME280_E_NULL_PTR;
 	} else {
@@ -1305,13 +1306,10 @@ int value(int type)
 	if (isSuccessfulReading ) {
 		switch (sensorType) {
 			case 1:
-				printf("pressure dentro bme.c:%lu \n", data.pressure);
 				return data.pressure;
 			case 2:
-				printf("temperature dentro bme.c:%lu \n", data.temperature);
 				return data.temperature;
 			case 4:
-				printf("humidity dentro bme.c:%lu \n", data.humidity);
 				return data.humidity;
 			default:
 				return 0;
@@ -1319,14 +1317,6 @@ int value(int type)
 	} else {
 		return 0;
 	}
-}
-
-void user_delay(uint32_t ms)
-{
-	static struct etimer timer;
-	etimer_set(&timer, CLOCK_SECOND * ms/1000);
-	PROCESS_WAIT_EVENT_UNTIL(etimer_expired(&timer));
-	return;
 }
 
 int8_t bme280_i2c_read(uint8_t dev_id, uint8_t reg_addr, uint8_t *reg_data, uint16_t len)
@@ -1346,7 +1336,6 @@ int configure(int type, int value) {
 	bme_280_sensor_struct.dev_id=BME280_I2C_ADDR_SEC;
 	bme_280_sensor_struct.read = bme280_i2c_read;
 	bme_280_sensor_struct.write = bme280_i2c_write;
-	bme_280_sensor_struct.delay_ms=user_delay;
 	successfulConfigure = bme280_init(&bme_280_sensor_struct);
 
 	return successfulConfigure;
