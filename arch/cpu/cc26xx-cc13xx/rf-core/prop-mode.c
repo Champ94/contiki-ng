@@ -45,6 +45,7 @@
 #include "net/netstack.h"
 #include "sys/energest.h"
 #include "sys/clock.h"
+#include "sys/critical.h"
 #include "sys/rtimer.h"
 #include "sys/cc.h"
 #include "lpm.h"
@@ -190,7 +191,7 @@ static rfc_propRxOutput_t rx_stats;
 #endif
 /*---------------------------------------------------------------------------*/
 /* Select power table based on the frequency band */
-#if DOT_15_4G_FREQUENCY_BAND_ID==DOT_15_4G_FREQUENCY_BAND_470
+#if DOT_15_4G_FREQUENCY_BAND_ID==DOT_15_4G_FREQUENCY_BAND_433 /*setting of TX Power for 433MHz Band*/
 #define TX_POWER_DRIVER PROP_MODE_TX_POWER_431_527
 #else
 #define TX_POWER_DRIVER PROP_MODE_TX_POWER_779_930
@@ -203,7 +204,7 @@ extern const prop_mode_tx_power_config_t TX_POWER_DRIVER[];
 #define OUTPUT_POWER_UNKNOWN 0xFFFF
 
 /* Default TX Power - position in output_power[] */
-static const prop_mode_tx_power_config_t *tx_power_current = &TX_POWER_DRIVER[1];
+static const prop_mode_tx_power_config_t *tx_power_current = &TX_POWER_DRIVER[0];/*setted max power tx*/
 /*---------------------------------------------------------------------------*/
 #ifdef PROP_MODE_CONF_LO_DIVIDER
 #define PROP_MODE_LO_DIVIDER   PROP_MODE_CONF_LO_DIVIDER
@@ -629,7 +630,7 @@ init(void)
   smartrf_settings_cmd_prop_rx_adv.pQueue = &rx_data_queue;
   smartrf_settings_cmd_prop_rx_adv.pOutput = (uint8_t *)&rx_stats;
 
-  set_channel(RF_CORE_CHANNEL);
+  set_channel(IEEE802154_DEFAULT_CHANNEL);
 
   if(on() != RF_CORE_CMD_OK) {
     PRINTF("init: on() failed\n");
@@ -766,6 +767,7 @@ send(const void *payload, unsigned short payload_len)
 static int
 read_frame(void *buf, unsigned short buf_len)
 {
+  int_master_status_t status;
   rfc_dataEntryGeneral_t *entry = (rfc_dataEntryGeneral_t *)rx_read_entry;
   uint8_t *data_ptr = &entry->data;
   int len = 0;
@@ -795,6 +797,14 @@ read_frame(void *buf, unsigned short buf_len)
     entry->status = DATA_ENTRY_STATUS_PENDING;
   }
 
+  status = critical_enter();
+  if(rx_is_full) {
+    rx_is_full = false;
+    PRINTF("RXQ was full, re-enabling radio!\n");
+    rx_on_prop();
+  }
+  critical_exit(status);
+    
   return len;
 }
 /*---------------------------------------------------------------------------*/
