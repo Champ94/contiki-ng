@@ -49,6 +49,7 @@
 #include "tmp-007-sensor.h"
 #include "opt-3001-sensor.h"
 #include "bme280.h"
+#include "bmi160.h"
 #include "ext-flash.h"
 /*---------------------------------------------------------------------------*/
 // #define BOARD_CONF_HAS_SENSORS 0
