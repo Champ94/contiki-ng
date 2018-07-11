@@ -53,8 +53,6 @@
 /*! @brief Contiki and TI headers */
 #include "contiki.h"
 #include "lib/sensors.h"
-#include "tmp-007-sensor.h"
-#include "sys/ctimer.h"
 #include "board-i2c.h"
 #include "sensor-common.h"
 #include "ti-lib.h"
@@ -62,6 +60,7 @@
 #include "sys/ctimer.h"
 
 struct bme280_dev bme_280_sensor_struct;
+static struct ctimer timer_ctimer;
 
 /**\name Internal macros */
 /* To identify osr settings selected by user */
@@ -377,6 +376,8 @@ int8_t bme280_init(struct bme280_dev *dev)
 			/* Read the chip-id of bme280 sensor */
 			rslt = bme280_get_regs(BME280_CHIP_ID_ADDR, &chip_id, 1, dev);
 			/* Check for chip id validity */
+			        printf("CHIP ID: %u\n", chip_id);
+			        printf("CHIP ID DEFINE %u\n", BME280_CHIP_ID);
 			if ((rslt == BME280_OK) && (chip_id == BME280_CHIP_ID)) {
 				dev->chip_id = chip_id;
 				/* Reset the sensor */
@@ -388,7 +389,7 @@ int8_t bme280_init(struct bme280_dev *dev)
 				break;
 			}
 			/* Wait for 1 ms */
-			//dev->delay_ms(1);
+			dev->delay_ms(1);
 			--try_count;
 		}
 		/* Chip id check failed */
@@ -587,7 +588,7 @@ int8_t bme280_soft_reset(const struct bme280_dev *dev)
 		/* Write the soft reset command in the sensor */
 		rslt = bme280_set_regs(&reg_addr, &soft_rst_cmd, 1, dev);
 		/* As per data sheet, startup time is 2 ms. */
-		//dev->delay_ms(2);
+		dev->delay_ms(2);
 	}
 
 	return rslt;
@@ -612,6 +613,11 @@ int8_t bme280_get_sensor_data(uint8_t sensor_comp, struct bme280_data *comp_data
 	if ((rslt == BME280_OK) && (comp_data != NULL)) {
 		/* Read the pressure and temperature data from the sensor */
 		rslt = bme280_get_regs(BME280_DATA_ADDR, reg_data, BME280_P_T_H_DATA_LEN, dev);
+		int i = 0;
+		for (i=0; i<BME280_P_T_H_DATA_LEN; i++)
+		    printf("%u", reg_data[i]);
+
+		printf("\n");
 
 		if (rslt == BME280_OK) {
 			/* Parse the read data from the sensor */
@@ -1275,8 +1281,8 @@ static int8_t null_ptr_check(const struct bme280_dev *dev)
 {
 	int8_t rslt;
 
-	//if ((dev == NULL) || (dev->read == NULL) || (dev->write == NULL) || (dev->delay_ms == NULL)) {
-	if ((dev == NULL) || (dev->read == NULL) || (dev->write == NULL)) {
+	if ((dev == NULL) || (dev->read == NULL) || (dev->write == NULL) || (dev->delay_ms == NULL)) {
+	//if ((dev == NULL) || (dev->read == NULL) || (dev->write == NULL)) {
 		/* Device structure pointer is not valid */
 		rslt = BME280_E_NULL_PTR;
 	} else {
@@ -1292,58 +1298,74 @@ static int8_t null_ptr_check(const struct bme280_dev *dev)
 
 int value(int type)
 {
-	int8_t isSuccessfulReading = 0;
+    int8_t isSuccessfulReading = 0;
 
-	// 1:press; 2:temp; 4:hum; 7:all;
-	uint8_t sensorType = (uint8_t)type;
+    // 1:press; 2:temp; 4:hum; 7:all;
+    uint8_t sensorType = (uint8_t)type;
 
-	// output
-	struct bme280_data *dataPointer, data;
-	dataPointer = &data;
+    // output
+    struct bme280_data *dataPointer, data;
+    dataPointer = &data;
 
-	isSuccessfulReading = bme280_get_sensor_data(type, dataPointer, &bme_280_sensor_struct);
+    isSuccessfulReading = bme280_get_sensor_data(type, dataPointer, &bme_280_sensor_struct);
 
-	if (isSuccessfulReading ) {
-		switch (sensorType) {
-			case 1:
-				return data.pressure;
-			case 2:
-				return data.temperature;
-			case 4:
-				return data.humidity;
-			default:
-				return 0;
-		}
-	} else {
-		return 0;
-	}
+    if(isSuccessfulReading) {
+        switch(sensorType) {
+            case 1:
+                return data.pressure;
+            case 2:
+                return data.temperature;
+            case 4:
+                return data.humidity;
+            default:
+                return 0;
+        }
+    } else {
+        return 0;
+    }
 }
 
 int8_t bme280_i2c_read(uint8_t dev_id, uint8_t reg_addr, uint8_t *reg_data, uint16_t len)
 {
-	board_i2c_select(0, BME280_I2C_ADDR_SEC);
-	return sensor_common_read_reg(reg_addr, reg_data, len);
+    int8_t rslt = 0;
+    board_i2c_select(BOARD_I2C_INTERFACE_0, BME280_I2C_ADDR_SEC);
+    rslt = sensor_common_read_reg(reg_addr, reg_data, len);
+    return rslt;
 }
 
 int8_t bme280_i2c_write(uint8_t dev_id, uint8_t reg_addr, uint8_t *reg_data, uint16_t len)
 {
-	board_i2c_select(0, BME280_I2C_ADDR_SEC);
-	return sensor_common_write_reg(reg_addr, reg_data, len);
+    int8_t rslt = 0;
+    board_i2c_select(BOARD_I2C_INTERFACE_0, BME280_I2C_ADDR_SEC);
+    rslt = sensor_common_write_reg(reg_addr, reg_data, len);
+    return rslt;
+}
+
+void ctimer_callback(void *ptr) {
+    return;
+}
+
+void bme280_wait_ms(uint32_t ms) {
+    ctimer_set(&timer_ctimer, ms, ctimer_callback, NULL);
 }
 
 int configure(int type, int value) {
-	int8_t successfulConfigure = -1;
-	bme_280_sensor_struct.dev_id=BME280_I2C_ADDR_SEC;
-	bme_280_sensor_struct.read = bme280_i2c_read;
-	bme_280_sensor_struct.write = bme280_i2c_write;
-	successfulConfigure = bme280_init(&bme_280_sensor_struct);
+    int8_t successfulConfigure = -1;
 
-	return successfulConfigure;
+    bme_280_sensor_struct.dev_id = BME280_I2C_ADDR_SEC;
+	bme_280_sensor_struct.intf = BME280_I2C_INTF;
+    bme_280_sensor_struct.read = bme280_i2c_read;
+    bme_280_sensor_struct.write = bme280_i2c_write;
+    bme_280_sensor_struct.delay_ms = bme280_wait_ms;
+
+    successfulConfigure = bme280_init(&bme_280_sensor_struct);
+
+    return successfulConfigure;
 }
 
 int status(int type)
 {
-	return 1;
+    return 1;
 }
 
 SENSORS_SENSOR(bme_280_sensor, "BME280", value, configure, status);

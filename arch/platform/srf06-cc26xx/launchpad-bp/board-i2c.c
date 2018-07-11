@@ -101,7 +101,6 @@ static bool
 i2c_status()
 {
   uint32_t status;
-
   status = ti_lib_i2c_master_err(I2C0_BASE);
   if(status & (I2C_MSTAT_DATACK_N_M | I2C_MSTAT_ADRACK_N_M)) {
     ti_lib_i2c_master_control(I2C0_BASE, I2C_MASTER_CMD_BURST_SEND_ERROR_STOP);

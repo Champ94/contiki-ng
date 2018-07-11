@@ -137,7 +137,7 @@
 #define BME280_DATA_ADDR					UINT8_C(0xF7)
 
 /**\name API success code */
-#define BME280_OK					INT8_C(0)
+#define BME280_OK					INT8_C(1)
 
 /**\name API error codes */
 #define BME280_E_NULL_PTR			INT8_C(-1)

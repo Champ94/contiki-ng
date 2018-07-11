@@ -56,7 +56,6 @@
 /*! @brief Contiki and TI headers */
 #include "contiki.h"
 #include "lib/sensors.h"
-#include "sys/ctimer.h"
 #include "board-i2c.h"
 #include "sensor-common.h"
 #include "ti-lib.h"
@@ -64,6 +63,7 @@
 #include "sys/ctimer.h"
 
 struct bmi160_dev bmi_160_sensor_struct;
+static struct ctimer timer_ctimer;
 
 /* Below look up table follows the enum bmi160_int_types.
  * Hence any change should match to the enum bmi160_int_types
@@ -5706,3 +5706,102 @@ static int8_t trigger_foc(struct bmi160_offsets *offset, struct bmi160_dev const
 }
 
 /** @}*/
+
+/*! @brief Custom code to adapt sensor with Contiki's macro
+ */
+
+int value_bmi(int type)
+{
+	int8_t rslt = BMI160_OK;
+	struct bmi160_sensor_data accel;
+	struct bmi160_sensor_data gyro;
+
+	switch(type) {
+		case 1: /* To read only Accel data */
+			rslt = bmi160_get_sensor_data(BMI160_ACCEL_SEL, &accel, NULL, &bmi_160_sensor_struct);
+			break;
+		case 2: /* To read only Gyro data */
+			rslt = bmi160_get_sensor_data(BMI160_GYRO_SEL, NULL, &gyro, &bmi_160_sensor_struct);
+			break;
+		case 3: /* To read both Accel and Gyro data */
+			bmi160_get_sensor_data((BMI160_ACCEL_SEL | BMI160_GYRO_SEL), &accel, &gyro, &bmi_160_sensor_struct);
+			break;
+		case 4: /* To read Accel data along with time */
+			rslt = bmi160_get_sensor_data((BMI160_ACCEL_SEL | BMI160_TIME_SEL) , &accel, NULL, &bmi_160_sensor_struct);
+			break;
+		case 5: /* To read Gyro data along with time */
+			rslt = bmi160_get_sensor_data((BMI160_GYRO_SEL | BMI160_TIME_SEL), NULL, &gyro, &bmi_160_sensor_struct);
+			break;
+		case 6: /* To read both Accel and Gyro data along with time*/
+			bmi160_get_sensor_data((BMI160_ACCEL_SEL | BMI160_GYRO_SEL | BMI160_TIME_SEL), &accel, &gyro, &bmi_160_sensor_struct);
+			break;
+		default:
+			return 0;
+	}
+
+	return rslt;
+}
+
+int8_t bmi160_i2c_read(uint8_t dev_id, uint8_t reg_addr, uint8_t *reg_data, uint16_t len)
+{
+	int8_t rslt = 0;
+	board_i2c_select(BOARD_I2C_INTERFACE_0, BMI160_I2C_ADDR);
+	rslt = sensor_common_read_reg(reg_addr, reg_data, len);
+	return rslt;
+}
+
+int8_t bmi160_i2c_write(uint8_t dev_id, uint8_t reg_addr, uint8_t *reg_data, uint16_t len)
+{
+	int8_t rslt = 0;
+	board_i2c_select(BOARD_I2C_INTERFACE_0, BMI160_I2C_ADDR);
+	rslt = sensor_common_write_reg(reg_addr, reg_data, len);
+	return rslt;
+}
+
+void ctimer_callback_bmi(void *ptr) {
+	return;
+}
+
+void bmi160_wait_ms_bmi(uint32_t ms) {
+	ctimer_set(&timer_ctimer, ms, ctimer_callback_bmi, NULL);
+}
+
+int configure_bmi(int type, int value) {
+	int8_t successfulInit = BMI160_OK;
+	int8_t successfulConfigure = BMI160_OK;
+
+	bmi_160_sensor_struct.id = BMI160_I2C_ADDR;
+	bmi_160_sensor_struct.read = bmi160_i2c_read;
+	bmi_160_sensor_struct.write = bmi160_i2c_write;
+	bmi_160_sensor_struct.delay_ms = bmi160_wait_ms_bmi;
+
+	successfulInit = bmi160_init(&bmi_160_sensor_struct);
+
+	/* Select the Output data rate, range of accelerometer sensor */
+	bmi_160_sensor_struct.accel_cfg.odr = BMI160_ACCEL_ODR_1600HZ;
+	bmi_160_sensor_struct.accel_cfg.range = BMI160_ACCEL_RANGE_2G;
+	bmi_160_sensor_struct.accel_cfg.bw = BMI160_ACCEL_BW_NORMAL_AVG4;
+
+	/* Select the power mode of accelerometer sensor */
+	bmi_160_sensor_struct.accel_cfg.power = BMI160_ACCEL_NORMAL_MODE;
+
+	/* Select the Output data rate, range of Gyroscope sensor */
+	bmi_160_sensor_struct.gyro_cfg.odr = BMI160_GYRO_ODR_3200HZ;
+	bmi_160_sensor_struct.gyro_cfg.range = BMI160_GYRO_RANGE_2000_DPS;
+	bmi_160_sensor_struct.gyro_cfg.bw = BMI160_GYRO_BW_NORMAL_MODE;
+
+	/* Select the power mode of Gyroscope sensor */
+	bmi_160_sensor_struct.gyro_cfg.power = BMI160_GYRO_NORMAL_MODE;
+
+	/* Set the sensor configuration */
+	successfulConfigure = bmi160_set_sens_conf(&bmi_160_sensor_struct);
+
+	return successfulInit == BMI160_OK && successfulConfigure == BMI160_OK;
+}
+
+int status_bmi(int type)
+{
+	return 1;
+}
+
+SENSORS_SENSOR(bmi_160_sensor, "BMI160", value_bmi, configure_bmi, status_bmi);

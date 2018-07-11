@@ -37,7 +37,7 @@
  * Example projects for C1350-bp-based platform.
  * @{
  *
- * \defgroup bme280-demo C1350-bp Demo Project
+ * \defgroup bmi160-demo C1350-bp Demo Project
  *
  *   Example project demonstrating the C1350-bp platform
  *
@@ -48,7 +48,7 @@
  *   your installation (same RDC layer, same PAN ID and RF channel), you should
  *   be able to ping6 this demo node.
  *
- * - sensors      : BME280 sensor is read asynchronously.
+ * - sensors      : BMI160 sensor is read asynchronously.
  *                  This example will print out readings in a staggered fashion
  *                  every 20 seconds
  *
@@ -94,41 +94,33 @@ AUTOSTART_PROCESSES(&cc26xx_demo_process);
 #define SENSOR_READING_PERIOD (CLOCK_SECOND * 20)
 #define SENSOR_READING_RANDOM (CLOCK_SECOND << 4)
 
-static void get_bme_reading()
+static void get_bmi_reading()
 {
     int value;
 
-    //Pressure: 1; Temperature: 2; Humidity: 4;
-
-    //value = bme_280_sensor.value(1);
-    //printf("PRESS: %d\n", value);
-
-    value = bme_280_sensor.value(2);
-    printf("TMP: %d\n", value);
-
-    //value = bme_280_sensor.value(4);
-    //printf("HUM: %d\n", value);
+    value = bmi_160_sensor.value(2);
+    printf("Gyro: %d\n", value);
 }
 /*---------------------------------------------------------------------------*/
 static void init_sensor_readings(void)
 {
-    SENSORS_ACTIVATE(bme_280_sensor);
+    SENSORS_ACTIVATE(bmi_160_sensor);
 }
 /*---------------------------------------------------------------------------*/
 PROCESS_THREAD(cc26xx_demo_process, ev, data)
 {
 
     PROCESS_BEGIN();
-    printf("BME280 sensor demo\n");
+    printf("BMI160 sensor demo\n");
 
     etimer_set(&et, CC26XX_DEMO_LOOP_INTERVAL);
     init_sensor_readings();
 
     while(1) {
-        SENSORS_ACTIVATE(bme_280_sensor);
+        SENSORS_ACTIVATE(bmi_160_sensor);
         PROCESS_WAIT_EVENT_UNTIL(etimer_expired(&et));
         etimer_reset(&et);
-        get_bme_reading();
+        get_bmi_reading();
     }
 
     PROCESS_END();

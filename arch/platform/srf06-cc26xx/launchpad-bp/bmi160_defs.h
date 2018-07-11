@@ -590,7 +590,8 @@
 #define BMI160_ERR_REG_MASK		UINT8_C(0x0F)
 
 /* BMI160 I2C address */
-#define BMI160_I2C_ADDR                 UINT8_C(0x68)
+//#define BMI160_I2C_ADDR                 UINT8_C(0x68)
+#define BMI160_I2C_ADDR                 UINT8_C(0x69)
 
 /* BMI160 secondary IF address */
 #define BMI160_AUX_BMM150_I2C_ADDR		UINT8_C(0x10)

@@ -46,6 +46,6 @@
 #include <string.h>
 /*---------------------------------------------------------------------------*/
 /** \brief Exports a global symbol to be used by the sensor API */
-SENSORS(&tmp_007_sensor, &opt_3001_sensor, &bme_280_sensor, $bmi_160_sensor);
+SENSORS(&tmp_007_sensor, &opt_3001_sensor, &bme_280_sensor/*, &bmi_160_sensor*/);
 /*---------------------------------------------------------------------------*/
 /** @} */
