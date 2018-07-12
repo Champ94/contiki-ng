@@ -58,8 +58,11 @@
 #include "ti-lib.h"
 #include "sys/etimer.h"
 #include "sys/ctimer.h"
+#include "inttypes.h"
 
 struct bme280_dev bme_280_sensor_struct;
+struct bme280_settings mysettings;
+struct bme280_calib_data calibdata;
 static struct ctimer timer_ctimer;
 
 /**\name Internal macros */
@@ -382,10 +385,11 @@ int8_t bme280_init(struct bme280_dev *dev)
 				dev->chip_id = chip_id;
 				/* Reset the sensor */
 				rslt = bme280_soft_reset(dev);
-				if (rslt == BME280_OK) {
-					/* Read the calibration data */
+				/*if (rslt == BME280_OK) {
+					 Read the calibration data 
 					rslt = get_calib_data(dev);
-				}
+					printf("lettura celib data %u\n",rslt);
+				}*/
 				break;
 			}
 			/* Wait for 1 ms */
@@ -1212,9 +1216,13 @@ static void interleave_reg_addr(const uint8_t *reg_addr, uint8_t *temp_buff, con
 static void parse_temp_press_calib_data(const uint8_t *reg_data, struct bme280_dev *dev)
 {
 	struct bme280_calib_data *calib_data = &dev->calib_data;
-
+        printf("dig_t1 msb %u\n",reg_data[1]);
+        printf("dig_t1 lsb %u\n",reg_data[0]);
 	calib_data->dig_T1 = BME280_CONCAT_BYTES(reg_data[1], reg_data[0]);
 	calib_data->dig_T2 = (int16_t)BME280_CONCAT_BYTES(reg_data[3], reg_data[2]);
+printf("dig_t1 %u\n",calib_data->dig_T1);
+printf("dig_T2 %"PRIu16"\n",calib_data->dig_T2);
+
 	calib_data->dig_T3 = (int16_t)BME280_CONCAT_BYTES(reg_data[5], reg_data[4]);
 	calib_data->dig_P1 = BME280_CONCAT_BYTES(reg_data[7], reg_data[6]);
 	calib_data->dig_P2 = (int16_t)BME280_CONCAT_BYTES(reg_data[9], reg_data[8]);
@@ -1302,11 +1310,12 @@ int value(int type)
 
     // 1:press; 2:temp; 4:hum; 7:all;
     uint8_t sensorType = (uint8_t)type;
-
+    uint8_t opmode;
     // output
     struct bme280_data *dataPointer, data;
     dataPointer = &data;
-
+    printf("Result lettura della modalità %u\n",bme280_get_sensor_mode(&opmode,&bme_280_sensor_struct));
+    printf("Mode %u \n",opmode);
     isSuccessfulReading = bme280_get_sensor_data(type, dataPointer, &bme_280_sensor_struct);
 
     if(isSuccessfulReading) {
@@ -1342,11 +1351,13 @@ int8_t bme280_i2c_write(uint8_t dev_id, uint8_t reg_addr, uint8_t *reg_data, uin
 }
 
 void ctimer_callback(void *ptr) {
+   printf("fine del timer\n");
     return;
 }
 
 void bme280_wait_ms(uint32_t ms) {
-    ctimer_set(&timer_ctimer, ms, ctimer_callback, NULL);
+
+    ctimer_set(&timer_ctimer, CLOCK_SECOND*10, ctimer_callback, NULL);
 }
 
 int configure(int type, int value) {
@@ -1357,8 +1368,23 @@ int configure(int type, int value) {
     bme_280_sensor_struct.read = bme280_i2c_read;
     bme_280_sensor_struct.write = bme280_i2c_write;
     bme_280_sensor_struct.delay_ms = bme280_wait_ms;
-
+    mysettings.osr_p=1;
+    mysettings.osr_t=1;
+    mysettings.osr_h=1;
+    mysettings.filter=0;
+    mysettings.standby_time=0;
+    bme_280_sensor_struct.settings=mysettings;
+    bme_280_sensor_struct.calib_data=calibdata;
     successfulConfigure = bme280_init(&bme_280_sensor_struct);
+    
+    printf("Set osr_p %u\n",bme280_set_sensor_settings(BME280_OSR_PRESS_SEL,&bme_280_sensor_struct));
+printf("Set osr_t %u\n",bme280_set_sensor_settings(BME280_OSR_TEMP_SEL,&bme_280_sensor_struct));
+printf("Set osr_h %u\n",bme280_set_sensor_settings(BME280_OSR_HUM_SEL,&bme_280_sensor_struct));
+printf("Set filter %u\n",bme280_set_sensor_settings(BME280_FILTER_SEL,&bme_280_sensor_struct));
+printf("Set standby %u\n",bme280_set_sensor_settings(BME280_STANDBY_SEL,&bme_280_sensor_struct));
+bme280_set_sensor_mode(3,&bme_280_sensor_struct); /*
+printf("dig_t1 %u\n",bme_280_sensor_struct.calib_data.dig_T1);
+printf("dig_T2 %"PRIu16"\n",bme_280_sensor_struct.calib_data.dig_T2);*/
 
     return successfulConfigure;
 }
@@ -1366,6 +1392,10 @@ int configure(int type, int value) {
 int status(int type)
 {
     return 1;
+}
+
+uint8_t start_get_calib(){
+      return get_calib_data(&bme_280_sensor_struct);
 }
 
 SENSORS_SENSOR(bme_280_sensor, "BME280", value, configure, status);

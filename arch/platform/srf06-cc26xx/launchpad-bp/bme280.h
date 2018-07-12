@@ -62,7 +62,8 @@ extern "C" {
 #include "bme280_defs.h"
 
 extern const struct sensors_sensor bme_280_sensor;
-
+/*Adapter to contiki*/
+uint8_t start_get_calib();
 /*!
  *  @brief This API is the entry point.
  *  It reads the chip-id and calibration data from the sensor.

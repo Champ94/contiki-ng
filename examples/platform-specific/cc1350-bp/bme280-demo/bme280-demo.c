@@ -68,7 +68,7 @@
 #include "batmon-sensor.h"
 #include "board-peripherals.h"
 #include "rf-core/rf-ble.h"
-
+#include "bme280.h"
 #include "ti-lib.h"
 
 #include <stdio.h>
@@ -82,7 +82,7 @@
 #define CC26XX_DEMO_TRIGGER_1     BOARD_BUTTON_HAL_INDEX_KEY_LEFT
 #define CC26XX_DEMO_TRIGGER_2     BOARD_BUTTON_HAL_INDEX_KEY_RIGHT
 /*---------------------------------------------------------------------------*/
-static struct etimer et;
+static struct etimer et, timer2;
 /*---------------------------------------------------------------------------*/
 PROCESS(cc26xx_demo_process, "cc26xx demo process");
 AUTOSTART_PROCESSES(&cc26xx_demo_process);
@@ -93,7 +93,7 @@ AUTOSTART_PROCESSES(&cc26xx_demo_process);
  */
 #define SENSOR_READING_PERIOD (CLOCK_SECOND * 20)
 #define SENSOR_READING_RANDOM (CLOCK_SECOND << 4)
-
+#define TIMESENSWAIT (CLOCK_SECOND * 2)
 static void get_bme_reading()
 {
     int value;
@@ -112,7 +112,9 @@ static void get_bme_reading()
 /*---------------------------------------------------------------------------*/
 static void init_sensor_readings(void)
 {
+    
     SENSORS_ACTIVATE(bme_280_sensor);
+     
 }
 /*---------------------------------------------------------------------------*/
 PROCESS_THREAD(cc26xx_demo_process, ev, data)
@@ -120,12 +122,14 @@ PROCESS_THREAD(cc26xx_demo_process, ev, data)
 
     PROCESS_BEGIN();
     printf("BME280 sensor demo\n");
-
+    
     etimer_set(&et, CC26XX_DEMO_LOOP_INTERVAL);
+etimer_set(&timer2, TIMESENSWAIT);
     init_sensor_readings();
-
+PROCESS_WAIT_EVENT_UNTIL(etimer_expired(&timer2));
+    printf("calib %u\n",start_get_calib());
     while(1) {
-        SENSORS_ACTIVATE(bme_280_sensor);
+        //SENSORS_ACTIVATE(bme_280_sensor);
         PROCESS_WAIT_EVENT_UNTIL(etimer_expired(&et));
         etimer_reset(&et);
         get_bme_reading();
