@@ -340,7 +340,7 @@
 #define BMI160_INTL_PULLUP_CONF_ADDR	 UINT8_C(0x85)
 
 /** Error code definitions */
-#define BMI160_OK                         INT8_C(0)
+#define BMI160_OK                         INT8_C(1)
 #define BMI160_E_NULL_PTR                 INT8_C(-1)
 #define BMI160_E_COM_FAIL                 INT8_C(-2)
 #define BMI160_E_DEV_NOT_FOUND            INT8_C(-3)

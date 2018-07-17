@@ -98,14 +98,14 @@ static void get_bmi_reading()
 {
     int value;
 
-    value = bmi_160_sensor.value(2);
-    printf("Gyro: %d\n", value);
+    value = bmi_160_sensor.value(3);
+    printf("Acc: %d\n", value);
 }
 /*---------------------------------------------------------------------------*/
-static void init_sensor_readings(void)
+/*static void init_sensor_readings(void)
 {
     SENSORS_ACTIVATE(bmi_160_sensor);
-}
+}*/
 /*---------------------------------------------------------------------------*/
 PROCESS_THREAD(cc26xx_demo_process, ev, data)
 {
@@ -114,10 +114,10 @@ PROCESS_THREAD(cc26xx_demo_process, ev, data)
     printf("BMI160 sensor demo\n");
 
     etimer_set(&et, CC26XX_DEMO_LOOP_INTERVAL);
-    init_sensor_readings();
+    //init_sensor_readings();
 
     while(1) {
-        SENSORS_ACTIVATE(bmi_160_sensor);
+        //SENSORS_ACTIVATE(bmi_160_sensor);
         PROCESS_WAIT_EVENT_UNTIL(etimer_expired(&et));
         etimer_reset(&et);
         get_bmi_reading();

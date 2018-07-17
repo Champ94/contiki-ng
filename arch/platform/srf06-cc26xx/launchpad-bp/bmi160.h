@@ -61,13 +61,11 @@ extern "C"
 #endif
 
 #include "bmi160_defs.h"
-#ifdef __KERNEL__
-#include <bmi160_math.h>
-#else
+
 #include <math.h>
 #include <string.h>
 #include <stdlib.h>
-#endif
+
 
 /************************ Contiki compatibility **************************/
 extern const struct sensors_sensor bmi_160_sensor;
