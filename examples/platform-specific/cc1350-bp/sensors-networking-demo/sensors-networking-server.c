@@ -40,7 +40,33 @@
 #define UDP_CLIENT_PORT	8765
 #define UDP_SERVER_PORT	5678
 
+#define GYRO 'g'
+#define ACC 'a'
+#define TEMP 't'
+#define PRESS 'p'
+#define HUM 'h'
+#define TEMP_INFRA 'i'
+#define OTP 'o'
 static struct simple_udp_connection udp_conn;
+// Axes values
+typedef struct acc_gyr_payload_s {
+    int16_t axes[3]; // x,y,z
+} acc_gyr_payload_t;
+
+// General sensors
+typedef struct packet_sensor {
+    char type;
+    uint8_t id_node;
+    int data_s;
+    uint32_t data_u;
+} packet_sensor_t;
+
+// Gyro + Accel
+typedef struct packet_acc_gyro {
+    char type;
+    uint8_t id_node;
+    acc_gyr_payload_t data[99];
+} packet_acc_gyro_t;
 
 PROCESS(udp_server_process, "UDP server");
 AUTOSTART_PROCESSES(&udp_server_process);
@@ -55,17 +81,22 @@ udp_rx_callback(struct simple_udp_connection *c,
          uint16_t datalen)
 {
   //unsigned count = *(unsigned *)data;
+    packet_acc_gyro_t *packet_acc_gyr;
+    packet_sensor_t packet_sens;
  char *d=(char *)data;
+ printf("ty %c \n",d[0]);
+ if(d[0]==GYRO || d[0]==ACC){
+     packet_acc_gyr=(packet_acc_gyro_t *)data;
+     printf("Type: %c, ID_NODO: %u, val x: %d, y: %d, z: %d \n",packet_acc_gyr->type,packet_acc_gyr->id_node, packet_acc_gyr->data[0].axes[0], packet_acc_gyr->data[0].axes[1], packet_acc_gyr->data[0].axes[2]);
+ }else {
+     packet_sens= (packet_sensor_t *)data;
+     printf("Type: %c, ID_NODO: %u, val x: %d \n",packet_sens.type,packet_sens.type,packet_sens.data_s);
+ }
+
   LOG_INFO("Arrivato messaggio %s from ", d);
   LOG_INFO_6ADDR(sender_addr);
   LOG_INFO_("\n");
-/*static unsigned count;
-#if WITH_SERVER_REPLY	
-  LOG_INFO("Sending response %u to ", count);
-  LOG_INFO_6ADDR(sender_addr);
-  LOG_INFO_("\n");
-  simple_udp_sendto(&udp_conn, &count, sizeof(count), sender_addr);
-#endif WITH_SERVER_REPLY */
+
 }
 /*---------------------------------------------------------------------------*/
 PROCESS_THREAD(udp_server_process, ev, data)
