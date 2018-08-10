@@ -70,6 +70,9 @@ extern "C"
 /************************ Contiki compatibility **************************/
 extern const struct sensors_sensor bmi_160_sensor;
 
+/***********************Custom function prototypes**************************/
+int bmi160_custom_value(int type, struct bmi160_sensor_data *data_a, struct bmi160_sensor_data * data_g);
+
 /*********************** User function prototypes ************************/
 
 /*!

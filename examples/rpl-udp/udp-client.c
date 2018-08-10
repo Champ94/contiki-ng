@@ -18,6 +18,21 @@ static struct simple_udp_connection udp_conn;
 #define SEND_INTERVAL		  (60 * CLOCK_SECOND)
 
 static struct simple_udp_connection udp_conn;
+typedef struct acc_gyr_payload_s{
+          int16_t axes[3];//x,y,z
+}acc_gyr_payload_t;
+
+struct packet_s{
+	char type;
+	uint8_t id_node;
+	int datas;
+	uint32_t datau;
+}
+struct packet_acc_gyro{
+	char type;
+	uint8_t id_node;
+	acc_gy_payload_t data[99];
+}
 
 /*---------------------------------------------------------------------------*/
 PROCESS(udp_client_process, "UDP client");
@@ -46,6 +61,7 @@ PROCESS_THREAD(udp_client_process, ev, data)
   static struct etimer periodic_timer;
   static unsigned count;
   static char payload[4]={'c','a','s','\0'};
+ 
   //static float fl;
  // static uint16_t i;
   uip_ipaddr_t dest_ipaddr;
