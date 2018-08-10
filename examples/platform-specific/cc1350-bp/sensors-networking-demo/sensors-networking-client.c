@@ -205,7 +205,9 @@ PROCESS_THREAD(sensors_networking_client, ev, data) {
 
       for (int i=1; i<5; i++) {
         for (int j=0; j<99; j++) {
-          acc_gyr_payload[j] = bmi160_datas[i*j];
+            acc_gyr_payload[j].axes[0] = bmi160_datas[i*j].x;
+            acc_gyr_payload[j].axes[1] = bmi160_datas[i*j].y;
+            acc_gyr_payload[j].axes[2] = bmi160_datas[i*j].z;
         }
         packet_acc_gyro_impl = build_acc_or_gyro_packet(acc_gyr_payload, ACC);
         send_acc_or_gyro(packet_acc_gyro_impl);
@@ -227,7 +229,9 @@ PROCESS_THREAD(sensors_networking_client, ev, data) {
 
       for (int i=1; i<5; i++) {
         for (int j=0; j<99; j++) {
-          acc_gyr_payload[j] = bmi160_datas[i*j];
+            acc_gyr_payload[j].axes[0] = bmi160_datas[i*j].x;
+            acc_gyr_payload[j].axes[1] = bmi160_datas[i*j].y;
+            acc_gyr_payload[j].axes[2] = bmi160_datas[i*j].z;
         }
         packet_acc_gyro_impl = build_acc_or_gyro_packet(acc_gyr_payload, GYRO);
         send_acc_or_gyro(packet_acc_gyro_impl);
