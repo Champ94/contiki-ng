@@ -32,13 +32,13 @@
 // HARDCODED BS
 #define NODE_ID 33
 
-#define GYRO "g"
-#define ACC "a"
-#define TEMP "t"
-#define PRESS "p"
-#define HUM "h"
-#define TEMP_INFRA "i"
-#define OTP "o"
+#define GYRO 'g'
+#define ACC 'a'
+#define TEMP 't'
+#define PRESS 'p'
+#define HUM 'h'
+#define TEMP_INFRA 'i'
+#define OTP 'o'
 
 // Socket
 static struct simple_udp_connection udp_conn;
