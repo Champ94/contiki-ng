@@ -82,7 +82,7 @@ udp_rx_callback(struct simple_udp_connection *c,
 {
   //unsigned count = *(unsigned *)data;
     packet_acc_gyro_t *packet_acc_gyr;
-    packet_sensor_t packet_sens;
+    packet_sensor_t *packet_sens;
  char *d=(char *)data;
  printf("ty %c \n",d[0]);
  if(d[0]==GYRO || d[0]==ACC){
@@ -90,7 +90,7 @@ udp_rx_callback(struct simple_udp_connection *c,
      printf("Type: %c, ID_NODO: %u, val x: %d, y: %d, z: %d \n",packet_acc_gyr->type,packet_acc_gyr->id_node, packet_acc_gyr->data[0].axes[0], packet_acc_gyr->data[0].axes[1], packet_acc_gyr->data[0].axes[2]);
  }else {
      packet_sens= (packet_sensor_t *)data;
-     printf("Type: %c, ID_NODO: %u, val x: %d \n",packet_sens.type,packet_sens.type,packet_sens.data_s);
+     printf("Type: %c, ID_NODO: %u, val x: %d \n",packet_sens->type,packet_sens->type,packet_sens->data_s);
  }
 
   LOG_INFO("Arrivato messaggio %s from ", d);
