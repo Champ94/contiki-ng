@@ -57,7 +57,7 @@ int checkRoute() {
   return NETSTACK_ROUTING.node_is_reachable() && NETSTACK_ROUTING.get_root_ipaddr(&dest_ipaddr);
 }
 
-static void send_acc_or_gyro(struct packet_acc_gyro packet) {
+static void send_acc_or_gyro(packet_acc_gyro_t packet) {
   // Send to DAG root
   if (checkRoute()) {
     /* Set the number of transmissions to use for this packet -
@@ -90,8 +90,8 @@ static void send_general_sensor(packet_sensor_t packet) {
 }
 
 /*---------------------------------------------------------------------------*/
-struct packet_acc_gyro build_acc_or_gyro_packet(acc_gyr_payload_t payload[], char type) {
-  struct packet_acc_gyro packet;
+packet_acc_gyro_t build_acc_or_gyro_packet(acc_gyr_payload_t payload[], char type) {
+  packet_acc_gyro_t packet;
   packet.type = type;
   packet.id_node = NODE_ID;
   packet.data = payload;
@@ -133,9 +133,9 @@ PROCESS_THREAD(sensors_networking_client, ev, data) {
   int value_i = 0;
   uint32_t value_u = 0;
   packet_sensor_t packet_sensor_impl;
-  struct packet_acc_gyro packet_acc_gyro_impl;
+  packet_acc_gyro_t packet_acc_gyro_impl;
   static struct bmi160_sensor_data bmi160_datas[400];
-  static acc_gyr_payload_t acc_gy_payload[99];
+  static acc_gyr_payload_t acc_gyr_payload[99];
 
   PROCESS_BEGIN();
 
@@ -190,9 +190,9 @@ PROCESS_THREAD(sensors_networking_client, ev, data) {
 
       for (static int i=1; i<5; i++) {
         for (static int j=0; j<99; j++) {
-          acc_gy_payload[j] = bmi160_datas[i*j];
+          acc_gyr_payload[j] = bmi160_datas[i*j];
         }
-        packet_acc_gyro_impl = build_acc_or_gyro_packet(acc_gy_payload, ACC);
+        packet_acc_gyro_impl = build_acc_or_gyro_packet(acc_gyr_payload, ACC);
         send_acc_or_gyro(packet_acc_gyro_impl);
       }
 
@@ -212,9 +212,9 @@ PROCESS_THREAD(sensors_networking_client, ev, data) {
 
       for (static int i=1; i<5; i++) {
         for (static int j=0; j<99; j++) {
-          acc_gy_payload[j] = bmi160_datas[i*j];
+          acc_gyr_payload[j] = bmi160_datas[i*j];
         }
-        packet_acc_gyro_impl = build_acc_or_gyro_packet(acc_gy_payload, GYRO);
+        packet_acc_gyro_impl = build_acc_or_gyro_packet(acc_gyr_payload, GYRO);
         send_acc_or_gyro(packet_acc_gyro_impl);
       }
 
