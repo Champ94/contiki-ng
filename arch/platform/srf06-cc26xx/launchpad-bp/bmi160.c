@@ -64,6 +64,8 @@
 
 struct bmi160_dev bmi_160_sensor_struct;
 static struct ctimer timer_ctimer;
+struct bmi160_sensor_data accel;
+	struct bmi160_sensor_data gyro;
 
 /* Below look up table follows the enum bmi160_int_types.
  * Hence any change should match to the enum bmi160_int_types
@@ -5723,15 +5725,51 @@ static int8_t trigger_foc(struct bmi160_offsets *offset, struct bmi160_dev const
 }
 
 /** @}*/
+/*! @brief Custom code to read value*/
+
+int bmi160_custom_value(int type, struct bmi160_sensor_data *data_a, struct bmi160_sensor_data * data_g)
+{
+	int8_t rslt = BMI160_OK;
+	
+	struct bmi160_pmu_status status;
+        bmi160_get_power_mode(&status,&bmi_160_sensor_struct);
+        
+	switch(type) {
+		case 1: /* To read only Accel data */
+			rslt = bmi160_get_sensor_data(BMI160_ACCEL_SEL, data_a, NULL, &bmi_160_sensor_struct);
+			break;
+		case 2:  /*To read only Gyro data */
+			rslt = bmi160_get_sensor_data(BMI160_GYRO_SEL, NULL, data_g, &bmi_160_sensor_struct);
+			break;
+		case 3: /* To read both Accel and Gyro data */
+			bmi160_get_sensor_data((BMI160_ACCEL_SEL | BMI160_GYRO_SEL), data_a, data_g, &bmi_160_sensor_struct);
+			break;
+		case 4: /*To read Accel data along with time */
+			rslt = bmi160_get_sensor_data((BMI160_ACCEL_SEL | BMI160_TIME_SEL) , data_a, NULL, &bmi_160_sensor_struct);
+			break;
+		case 5:  /*To read Gyro data along with time */
+			rslt = bmi160_get_sensor_data((BMI160_GYRO_SEL | BMI160_TIME_SEL), NULL, data_g, &bmi_160_sensor_struct);
+			break;
+		case 6:/* To read both Accel and Gyro data along with time*/
+			bmi160_get_sensor_data((BMI160_ACCEL_SEL | BMI160_GYRO_SEL | BMI160_TIME_SEL), data_a, data_g, &bmi_160_sensor_struct);
+			break;
+		default:
+			return 0;}
+return rslt;	
+}
+
+
 
 /*! @brief Custom code to adapt sensor with Contiki's macro
  */
 
+
+
 int value_bmi(int type)
 {
 	int8_t rslt = BMI160_OK;
-	struct bmi160_sensor_data accel;
-	struct bmi160_sensor_data gyro;
+	/*struct bmi160_sensor_data accel;
+	struct bmi160_sensor_data gyro;*/
 	struct bmi160_pmu_status status;
         bmi160_get_power_mode(&status,&bmi_160_sensor_struct);
        /* printf("stato acc %u \n", status.accel_pmu_status);
