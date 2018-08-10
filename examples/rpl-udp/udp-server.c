@@ -36,7 +36,7 @@
 #define LOG_MODULE "App"
 #define LOG_LEVEL LOG_LEVEL_INFO
 
-#define WITH_SERVER_REPLY  1
+#define WITH_SERVER_REPLY  0
 #define UDP_CLIENT_PORT	8765
 #define UDP_SERVER_PORT	5678
 
@@ -54,16 +54,18 @@ udp_rx_callback(struct simple_udp_connection *c,
          const uint8_t *data,
          uint16_t datalen)
 {
-  unsigned count = *(unsigned *)data;
-  LOG_INFO("Received request %u from ", count);
+  //unsigned count = *(unsigned *)data;
+ char *d=(char *)data;
+  LOG_INFO("Arrivato messaggio %s from ", d);
   LOG_INFO_6ADDR(sender_addr);
   LOG_INFO_("\n");
-#if WITH_SERVER_REPLY
+/*static unsigned count;
+#if WITH_SERVER_REPLY	
   LOG_INFO("Sending response %u to ", count);
   LOG_INFO_6ADDR(sender_addr);
   LOG_INFO_("\n");
   simple_udp_sendto(&udp_conn, &count, sizeof(count), sender_addr);
-#endif /* WITH_SERVER_REPLY */
+#endif WITH_SERVER_REPLY */
 }
 /*---------------------------------------------------------------------------*/
 PROCESS_THREAD(udp_server_process, ev, data)
