@@ -3,10 +3,23 @@
 #include "random.h"
 #include "net/netstack.h"
 #include "net/ipv6/simple-udp.h"
+#include "sys/etimer.h"
+#include "dev/watchdog.h"
+#include "dev/button-hal.h"
+#include "button-sensor.h"
+#include "batmon-sensor.h"
+#include "board-peripherals.h"
+#include "rf-core/rf-ble.h"
 
+#include "ti-lib.h"
+
+#include "board-peripherals.h"
 #include "bme280.h"
 #include "bmi160.h"
 #include "bmi160_defs.h"
+
+#include <stdio.h>
+#include <stdint.h>
 
 #include "sys/log.h"
 #define LOG_MODULE "App"
@@ -94,7 +107,9 @@ packet_acc_gyro_t build_acc_or_gyro_packet(acc_gyr_payload_t payload[], char typ
   packet_acc_gyro_t packet;
   packet.type = type;
   packet.id_node = NODE_ID;
-  packet.data = payload;
+  for (int i=0; i<99; i++) {
+      packet.data[i] = payload[i];
+  }
   return packet;
 }
 
