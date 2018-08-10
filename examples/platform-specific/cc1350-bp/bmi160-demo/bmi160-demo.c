@@ -68,7 +68,8 @@
 #include "batmon-sensor.h"
 #include "board-peripherals.h"
 #include "rf-core/rf-ble.h"
-
+#include "bmi160.h"
+#include "bmi160_defs.h"
 #include "ti-lib.h"
 
 #include <stdio.h>
@@ -94,12 +95,17 @@ AUTOSTART_PROCESSES(&cc26xx_demo_process);
 #define SENSOR_READING_PERIOD (CLOCK_SECOND * 20)
 #define SENSOR_READING_RANDOM (CLOCK_SECOND << 4)
 
+
 static void get_bmi_reading()
 {
     int value;
-
+    struct bmi160_sensor_data data_a;
+	struct bmi160_sensor_data data_g;
     value = bmi_160_sensor.value(3);
-    printf("Acc: %d\n", value);
+    value = bmi160_custom_value(1, &data_a, &data_g);
+    printf ("result %d\n", value);    
+    printf("Acc x: %d\n", data_a.x);
+
 }
 /*---------------------------------------------------------------------------*/
 /*static void init_sensor_readings(void)
