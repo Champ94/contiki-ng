@@ -67,7 +67,7 @@ static void send_acc_or_gyro(packet_acc_gyro_t packet) {
     */
     uipbuf_set_attr(UIPBUF_ATTR_MAX_MAC_TRANSMISSIONS, 10); // 10 --> number of attempts to transmit
     // Actual sender
-    simple_udp_sendto(&udp_conn, packet, sizeof(packet), &dest_ipaddr);
+    simple_udp_sendto(&udp_conn, &packet, sizeof(packet), &dest_ipaddr);
   } else {
     LOG_INFO("Not reachable yet \n");
   }
@@ -83,7 +83,7 @@ static void send_general_sensor(packet_sensor_t packet) {
     */
     uipbuf_set_attr(UIPBUF_ATTR_MAX_MAC_TRANSMISSIONS, 10); // 10 --> number of attempts to transmit
     // Actual sender
-    simple_udp_sendto(&udp_conn, packet, sizeof(packet), &dest_ipaddr);
+    simple_udp_sendto(&udp_conn, &packet, sizeof(packet), &dest_ipaddr);
   } else {
     LOG_INFO("Not reachable yet \n");
   }
