@@ -203,8 +203,8 @@ PROCESS_THREAD(sensors_networking_client, ev, data) {
         etimer_reset(&sample_timer);
       }
 
-      for (static int i=1; i<5; i++) {
-        for (static int j=0; j<99; j++) {
+      for (int i=1; i<5; i++) {
+        for (int j=0; j<99; j++) {
           acc_gyr_payload[j] = bmi160_datas[i*j];
         }
         packet_acc_gyro_impl = build_acc_or_gyro_packet(acc_gyr_payload, ACC);
@@ -225,8 +225,8 @@ PROCESS_THREAD(sensors_networking_client, ev, data) {
         etimer_reset(&sample_timer);
       }
 
-      for (static int i=1; i<5; i++) {
-        for (static int j=0; j<99; j++) {
+      for (int i=1; i<5; i++) {
+        for (int j=0; j<99; j++) {
           acc_gyr_payload[j] = bmi160_datas[i*j];
         }
         packet_acc_gyro_impl = build_acc_or_gyro_packet(acc_gyr_payload, GYRO);
