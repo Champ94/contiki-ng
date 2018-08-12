@@ -31,7 +31,7 @@
 #include "net/routing/routing.h"
 #include "net/netstack.h"
 #include "net/ipv6/simple-udp.h"
-
+#include "inttypes.h"
 #include "sys/log.h"
 #define LOG_MODULE "App"
 #define LOG_LEVEL LOG_LEVEL_INFO
@@ -56,7 +56,7 @@ typedef struct acc_gyr_payload_s {
 // General sensors
 typedef struct packet_sensor {
     char type;
-    uint8_t id_node;
+    /*uint8_t*/char id_node;
     int data_s;
     uint32_t data_u;
 } packet_sensor_t;
@@ -81,19 +81,19 @@ udp_rx_callback(struct simple_udp_connection *c,
          uint16_t datalen)
 {
   //unsigned count = *(unsigned *)data;
-    packet_acc_gyro_t *packet_acc_gyr;
+   // packet_acc_gyro_t *packet_acc_gyr;
     packet_sensor_t *packet_sens;
- char *d=(char *)data;
+char *d=(char *)data;
  printf("ty %c \n",d[0]);
- if(d[0]==GYRO || d[0]==ACC){
+ /*if(d[0]==GYRO || d[0]==ACC){
      packet_acc_gyr=(packet_acc_gyro_t *)data;
      printf("Type: %c, ID_NODO: %u, val x: %d, y: %d, z: %d \n",packet_acc_gyr->type,packet_acc_gyr->id_node, packet_acc_gyr->data[0].axes[0], packet_acc_gyr->data[0].axes[1], packet_acc_gyr->data[0].axes[2]);
- }else {
+ }else {*/
      packet_sens= (packet_sensor_t *)data;
-     printf("Type: %c, ID_NODO: %u, val x: %d \n",packet_sens->type,packet_sens->type,packet_sens->data_s);
- }
+     printf("Type: %c, ID_NODO: %c, val: %d \n",packet_sens->type,packet_sens->id_node,packet_sens->data_s);
+ //}
 
-  LOG_INFO("Arrivato messaggio %s from ", d);
+  LOG_INFO("Arrivato messaggio ");
   LOG_INFO_6ADDR(sender_addr);
   LOG_INFO_("\n");
 
@@ -105,6 +105,7 @@ PROCESS_THREAD(udp_server_process, ev, data)
 
   /* Initialize DAG root */
   NETSTACK_ROUTING.root_start();
+  printf("server avviato\n");
 
   /* Initialize UDP connection */
   simple_udp_register(&udp_conn, UDP_SERVER_PORT, NULL,
