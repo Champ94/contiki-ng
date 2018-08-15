@@ -79,7 +79,7 @@ typedef struct node_pile{
 
 } node_pile_t;
 
-static node_pile_t *head=null;//head of pile
+static node_pile_t *head=NULL;//head of pile
 
 static mutex_t sem; //mutex to sync access to pile
 static uint8_t count_pile_node;
@@ -161,20 +161,22 @@ static void udp_rx_callback(struct simple_udp_connection *c, const uip_ipaddr_t 
 }
 /*---------------------------------------------------------------------------*/
 PROCESS_THREAD(sending_acc_gyro, ev, data) {
-  static acc_gyr_payload_t *copy_head_data=null;
+  static acc_gyr_payload_t *copy_head_data=NULL;
   static void *ind;
   static void *garbage;
   static char type;
-  static boolean yet_lock=false;
+  static bool yet_lock=false;
+
+  PROCESS_BEGIN();
   while(true){
     while(!mutex_try_lock(&sem));
     yet_lock=true;
-    if(head!=null) {
+    if(head!=NULL) {
       copy_head_data = head->n_pile;
       type = head->type;
     }
 
-    if(copy_head_data!=null) {
+    if(copy_head_data!=NULL) {
       mutex_unlock(&sem);
       yet_lock=false;
       if (send_acc_or_gyro(build_acc_or_gyro_packet(copy_head_data, type))) {
@@ -184,23 +186,23 @@ PROCESS_THREAD(sending_acc_gyro, ev, data) {
         garbage = head;
         head = ind;
         heapmem_free(garbage);
-        copy_head_data=null;
+        copy_head_data=NULL;
       }
     }
     if(yet_lock)
       mutex_unlock(&sem);
   }
 
-
+  PROCESS_END();
 
 }
 /*---------------------------------------------------------------------------*/
 PROCESS_THREAD(sensors_networking_client, ev, data) {
   static struct etimer periodic_timer;
   static struct etimer config_timer;
-  //static struct etimer sample_timer;
+  static struct etimer sample_timer;
   static unsigned count = 0;
-  //static unsigned count_sample = 0;
+  static unsigned count_sample = 0;
   static uint8_t i;
   static node_pile_t *tmp;
   int value_i = 0;
@@ -209,6 +211,7 @@ PROCESS_THREAD(sensors_networking_client, ev, data) {
   static node_pile_t *new_node;
   //packet_acc_gyro_t packet_acc_gyro_impl;
   static struct bmi160_sensor_data bmi160_datas;
+  
   //static acc_gyr_payload_t acc_gyr_payload[99
           PROCESS_BEGIN();
 
@@ -262,19 +265,19 @@ PROCESS_THREAD(sensors_networking_client, ev, data) {
                PROCESS_WAIT_EVENT_UNTIL(etimer_expired(&sample_timer));
 
                bmi160_custom_value(1, &bmi160_datas, NULL);
-               new_node->n_pile[i]->axes[1]=bmi160_datas.x;
-               new_node->n_pile[i]->axes[2]=bmi160_datas.y;
-               new_node->n_pile[i]->axes[3]=bmi160_datas.z;
+               new_node->n_pile[i].axes[0]=bmi160_datas.x;
+               new_node->n_pile[i].axes[1]=bmi160_datas.y;
+               new_node->n_pile[i].axes[2]=bmi160_datas.z;
 
                etimer_reset(&sample_timer);
                count_sample++;
            }
            new_node->type=ACC;
-           new_node->next=null;
+           new_node->next=NULL;
            while(!mutex_try_lock(&sem));
-           if(head!=null) {
+           if(head!=NULL) {
                if(count_pile_node<N_MAX_NODES) {
-                   for (tmp = head; tmp->next != null; tmp = tmp->next);
+                   for (tmp = head; tmp->next != NULL; tmp = tmp->next);
                    tmp->next = new_node;
                }
            }else
@@ -307,19 +310,19 @@ PROCESS_THREAD(sensors_networking_client, ev, data) {
                 PROCESS_WAIT_EVENT_UNTIL(etimer_expired(&sample_timer));
 
                 bmi160_custom_value(2, &bmi160_datas, NULL);
-                new_node->n_pile[i]->axes[1]=bmi160_datas.x;
-                new_node->n_pile[i]->axes[2]=bmi160_datas.y;
-                new_node->n_pile[i]->axes[3]=bmi160_datas.z;
+                new_node->n_pile[i].axes[0]=bmi160_datas.x;
+                new_node->n_pile[i].axes[1]=bmi160_datas.y;
+                new_node->n_pile[i].axes[2]=bmi160_datas.z;
 
                 etimer_reset(&sample_timer);
                 count_sample++;
             }
             new_node->type=GYRO;
-            new_node->next=null;
+            new_node->next=NULL;
             while(!mutex_try_lock(&sem));//da verificare se funziona come un mutex normale che sospende il processo e aspetta che si liberi la risorsa o no
-            if(head!=null) {
+            if(head!=NULL) {
                 if(count_pile_node<N_MAX_NODES) {
-                    for (tmp = head; tmp->next != null; tmp = tmp->next);
+                    for (tmp = head; tmp->next != NULL; tmp = tmp->next);
                     tmp->next = new_node;
                 }
             }else
