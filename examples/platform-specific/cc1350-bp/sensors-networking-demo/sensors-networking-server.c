@@ -40,6 +40,8 @@
 #define UDP_CLIENT_PORT	8765
 #define UDP_SERVER_PORT	5678
 
+#define N_VALUES_NODE 10
+
 #define GYRO 'g'
 #define ACC 'a'
 #define TEMP 't'
@@ -65,7 +67,7 @@ typedef struct packet_sensor {
 typedef struct packet_acc_gyro {
     char type;
     uint8_t id_node;
-    acc_gyr_payload_t data[99];
+    acc_gyr_payload_t *data;//controllare quando viene fatta la free per evitare la cancellazione prima dell'invio
 } packet_acc_gyro_t;
 
 PROCESS(udp_server_process, "UDP server");
