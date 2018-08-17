@@ -65,7 +65,7 @@
 #else
 /* If the heap size is not set, we use a minimal size that will ensure
    that all allocation attempts fail. */
-#define HEAPMEM_ARENA_SIZE 1
+#define HEAPMEM_ARENA_SIZE 300/*1*/
 #endif
 /* HEAPMEM_CONF_ARENA_SIZE */
 

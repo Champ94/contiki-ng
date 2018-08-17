@@ -44,7 +44,7 @@
 #define OTP 'o'
 
 #define N_VALUES_NODE 10
-#define N_MAX_NODES 4
+#define N_MAX_NODES 3
 // Socket
 static struct simple_udp_connection udp_conn;
 // Destination IP address
@@ -69,7 +69,7 @@ typedef struct packet_sensor {
 typedef struct packet_acc_gyro {
     char type;
     uint8_t id_node;
-    acc_gyr_payload_t *data;//controllare quando viene fatta la free per evitare la cancellazione prima dell'invio
+    acc_gyr_payload_t data[N_VALUES_NODE];/* *data;controllare quando viene fatta la free per evitare la cancellazione prima dell'invio*/
 } packet_acc_gyro_t;
 
 typedef struct node_pile{
@@ -82,14 +82,14 @@ typedef struct node_pile{
 static node_pile_t *head=NULL;//head of pile
 
 static mutex_t sem; //mutex to sync access to pile
-static uint8_t count_pile_node;
+static uint8_t count_pile_node=0;
 
 /*---------------------------------------------------------------------------*/
 int checkRoute() {
   return NETSTACK_ROUTING.node_is_reachable() && NETSTACK_ROUTING.get_root_ipaddr(&dest_ipaddr);
 }
 
-static int send_acc_or_gyro(packet_acc_gyro_t packet) {
+int send_acc_or_gyro(packet_acc_gyro_t packet) {
    printf("sending gyro o acc\n");
   // Send to DAG root
   if (checkRoute()) {
@@ -112,11 +112,11 @@ static void send_general_sensor(packet_sensor_t packet) {
   printf("sending gyro o acc\n");
   // Send to DAG root
   if (checkRoute()) {
-    /* Set the number of transmissions to use for this packet -
+     /*Set the number of transmissions to use for this packet -
        this can be used to create more reliable transmissions or
        less reliable than the default. Works end-to-end if
-       UIP_CONF_TAG_TC_WITH_VARIABLE_RETRANSMISSIONS is set to 1.
-    */
+       UIP_CONF_TAG_TC_WITH_VARIABLE_RETRANSMISSIONS is set to 1.*/
+    
     uipbuf_set_attr(UIPBUF_ATTR_MAX_MAC_TRANSMISSIONS, 10); // 10 --> number of attempts to transmit
     // Actual sender
     simple_udp_sendto(&udp_conn, &packet, sizeof(packet), &dest_ipaddr);
@@ -130,7 +130,8 @@ packet_acc_gyro_t build_acc_or_gyro_packet(acc_gyr_payload_t payload[], char typ
   packet_acc_gyro_t packet;
   packet.type = type;
   packet.id_node = NODE_ID;
-  packet.data=payload;
+  for(uint8_t i=0; i<N_VALUES_NODE; i++)
+    packet.data[i]=payload[i];
 
   return packet;
 }
@@ -166,31 +167,44 @@ PROCESS_THREAD(sending_acc_gyro, ev, data) {
   static void *garbage;
   static char type;
   static bool yet_lock=false;
-
+  static struct etimer t;
   PROCESS_BEGIN();
-  while(true){
-    while(!mutex_try_lock(&sem));
+  etimer_set(&t, CLOCK_SECOND);  
+while(true){ 
+    PROCESS_WAIT_EVENT_UNTIL(etimer_expired(&t));
+
+    //printf ("ris mutex %d\n",mutex_try_lock(&sem));
+    mutex_try_lock(&sem);
     yet_lock=true;
+    //printf("preso lock 1 in sending\n");
     if(head!=NULL) {
+      printf("head not null\n");
       copy_head_data = head->n_pile;
       type = head->type;
     }
 
     if(copy_head_data!=NULL) {
       mutex_unlock(&sem);
+      // printf("rilascio mutex in sending pre invio\n");
       yet_lock=false;
       if (send_acc_or_gyro(build_acc_or_gyro_packet(copy_head_data, type))) {
-        while (!mutex_try_lock(&sem));
+        printf("invio riuscito di %c\n",type);
+      //  while (!mutex_try_lock(&sem));
+        printf ("ris mutex 2 %d\n",mutex_try_lock(&sem));
         yet_lock=true;
         ind = head->next;
         garbage = head;
         head = ind;
         heapmem_free(garbage);
+        count_pile_node--;
         copy_head_data=NULL;
       }
     }
-    if(yet_lock)
+    if(yet_lock){
       mutex_unlock(&sem);
+     //printf("rilascio ultimo mutex\n");
+     }
+    etimer_reset(&t);
   }
 
   PROCESS_END();
@@ -201,8 +215,8 @@ PROCESS_THREAD(sensors_networking_client, ev, data) {
   static struct etimer periodic_timer;
   static struct etimer config_timer;
   static struct etimer sample_timer;
-  static unsigned count = 0;
-  static unsigned count_sample = 0;
+  static uint8_t count = 0;
+  static int16_t count_sample = 0;
   static uint8_t i;
   static node_pile_t *tmp;
   int value_i = 0;
@@ -211,7 +225,7 @@ PROCESS_THREAD(sensors_networking_client, ev, data) {
   static node_pile_t *new_node;
   //packet_acc_gyro_t packet_acc_gyro_impl;
   static struct bmi160_sensor_data bmi160_datas;
-  
+  static heapmem_stats_t heap_stat;
   //static acc_gyr_payload_t acc_gyr_payload[99
           PROCESS_BEGIN();
 
@@ -226,10 +240,12 @@ PROCESS_THREAD(sensors_networking_client, ev, data) {
   PROCESS_WAIT_EVENT_UNTIL(etimer_expired(&config_timer));
   start_get_calib();
 
+   printf("avviato tutto il processo di lettura\n");
+
   while(1) {
     PROCESS_WAIT_EVENT_UNTIL(etimer_expired(&periodic_timer));
-
-    if (count ==0 /*6*/) {
+    count_sample=0;
+   if (count ==6) {
       // Temp Infra
       value_i = tmp_007_sensor.value(TMP_007_SENSOR_TYPE_OBJECT);
       printf("infra %d\n",value_i);
@@ -258,9 +274,21 @@ PROCESS_THREAD(sensors_networking_client, ev, data) {
     } else if (count%2 == 0) {
       // ACC
       etimer_set(&sample_timer, 25 * (CLOCK_SECOND / 10000));
-
-      while(count_sample < 400) {
+       printf("dentro acc\n");
+        printf("sizeof %d\n", sizeof(node_pile_t));
+      while(count_sample < 400 && count_pile_node< N_MAX_NODES) {
            new_node = heapmem_alloc(sizeof(node_pile_t));
+	   if (new_node==NULL){
+             printf("e' fallita la malloc %u\n",count_sample);
+            heapmem_stats(&heap_stat);
+            printf("allocated %d\n",heap_stat.allocated);
+            printf("overhead %d\n",heap_stat.overhead);
+            printf("available %d\n",heap_stat.available);
+            printf("footprint %d\n",heap_stat.footprint);
+            printf("chunks %d\n",heap_stat.chunks);
+              }
+           else{
+           printf("inizio delle rilevazioni");
            for(i=0;i<N_VALUES_NODE;i++) {
                PROCESS_WAIT_EVENT_UNTIL(etimer_expired(&sample_timer));
 
@@ -274,7 +302,10 @@ PROCESS_THREAD(sensors_networking_client, ev, data) {
            }
            new_node->type=ACC;
            new_node->next=NULL;
-           while(!mutex_try_lock(&sem));
+	   bool mt;
+           //while(!mutex_try_lock(&sem));
+          mt=mutex_try_lock(&sem);
+          printf("rsl mut 1 in acc %d\n",mt);
            if(head!=NULL) {
                if(count_pile_node<N_MAX_NODES) {
                    for (tmp = head; tmp->next != NULL; tmp = tmp->next);
@@ -282,11 +313,12 @@ PROCESS_THREAD(sensors_networking_client, ev, data) {
                }
            }else
                head=new_node;
-
+           
            count_pile_node++;
            mutex_unlock(&sem);
-
-
+           printf("rilasciato il mutex preso per scrivere da gyro\n");          
+}
+       count_sample++;
       }
         count++;
      /* da canc for (int i=1; i<5; i++) {
@@ -303,9 +335,21 @@ PROCESS_THREAD(sensors_networking_client, ev, data) {
     } else if (count%2 == 1) {
       // GYRO
         etimer_set(&sample_timer, 25 * (CLOCK_SECOND / 10000));
-
-        while(count_sample < 400) {
+        printf("dentro gyro\n");
+        printf("count %u\n",count);
+        while(count_sample < 400 && count_pile_node< N_MAX_NODES) {
             new_node = heapmem_alloc(sizeof(node_pile_t));
+           if( new_node==NULL){
+              printf("è fallita la malloc %u\n",count_sample);
+            heapmem_stats(&heap_stat);
+            printf("allocated %d\n",heap_stat.allocated);
+            printf("overhead %d\n",heap_stat.overhead);
+            printf("available %d\n",heap_stat.available);
+            printf("footprint %d\n",heap_stat.footprint);
+            printf("chunks %d\n",heap_stat.chunks);
+}
+           else{
+              printf("dentro campionamento\n");
             for(i=0;i<N_VALUES_NODE;i++) {
                 PROCESS_WAIT_EVENT_UNTIL(etimer_expired(&sample_timer));
 
@@ -320,7 +364,8 @@ PROCESS_THREAD(sensors_networking_client, ev, data) {
             new_node->type=GYRO;
             new_node->next=NULL;
             while(!mutex_try_lock(&sem));//da verificare se funziona come un mutex normale che sospende il processo e aspetta che si liberi la risorsa o no
-            if(head!=NULL) {
+printf("preso il mutex per scrivere \n");            
+	if(head!=NULL) {
                 if(count_pile_node<N_MAX_NODES) {
                     for (tmp = head; tmp->next != NULL; tmp = tmp->next);
                     tmp->next = new_node;
@@ -330,8 +375,9 @@ PROCESS_THREAD(sensors_networking_client, ev, data) {
 
             count_pile_node++;
             mutex_unlock(&sem);
-
-
+            printf("rilasciato il mutex preso per scrivere da gyro\n");
+          }
+         count_sample++;
         }
         count++;
 

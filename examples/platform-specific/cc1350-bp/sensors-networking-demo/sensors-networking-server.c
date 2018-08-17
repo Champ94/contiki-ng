@@ -40,7 +40,7 @@
 #define UDP_CLIENT_PORT	8765
 #define UDP_SERVER_PORT	5678
 
-#define N_VALUES_NODE 10
+#define N_VALUES_NODE 4
 
 #define GYRO 'g'
 #define ACC 'a'
@@ -67,7 +67,7 @@ typedef struct packet_sensor {
 typedef struct packet_acc_gyro {
     char type;
     uint8_t id_node;
-    acc_gyr_payload_t *data;//controllare quando viene fatta la free per evitare la cancellazione prima dell'invio
+    acc_gyr_payload_t data[N_VALUES_NODE]; /* *data;controllare quando viene fatta la free per evitare la cancellazione prima dell'invio*/
 } packet_acc_gyro_t;
 
 PROCESS(udp_server_process, "UDP server");
@@ -83,17 +83,17 @@ udp_rx_callback(struct simple_udp_connection *c,
          uint16_t datalen)
 {
   //unsigned count = *(unsigned *)data;
-   // packet_acc_gyro_t *packet_acc_gyr;
+    packet_acc_gyro_t *packet_acc_gyr;
     packet_sensor_t *packet_sens;
 char *d=(char *)data;
  printf("ty %c \n",d[0]);
- /*if(d[0]==GYRO || d[0]==ACC){
+ if(d[0]==GYRO || d[0]==ACC){
      packet_acc_gyr=(packet_acc_gyro_t *)data;
      printf("Type: %c, ID_NODO: %u, val x: %d, y: %d, z: %d \n",packet_acc_gyr->type,packet_acc_gyr->id_node, packet_acc_gyr->data[0].axes[0], packet_acc_gyr->data[0].axes[1], packet_acc_gyr->data[0].axes[2]);
- }else {*/
+ }else {
      packet_sens= (packet_sensor_t *)data;
      printf("Type: %c, ID_NODO: %c, val: %d \n",packet_sens->type,packet_sens->id_node,packet_sens->data_s);
- //}
+ }
 
   LOG_INFO("Arrivato messaggio ");
   LOG_INFO_6ADDR(sender_addr);
