@@ -100,15 +100,15 @@ static void get_bme_reading()
 
     //Pressure: 1; Temperature: 2; Humidity: 4;
 
-    /*value = bme_280_sensor.value(1);
+    value = bme_280_sensor.value(1);
     int dec=value/100;
     int vir=value - dec*100;
-    printf("PRESS: %u . %u\n hPa", dec,vir);*/
+    printf("PRESS: %u . %u\n hPa", dec,vir);
 
-   /* value = bme_280_sensor.value(2);
+   value = bme_280_sensor.value(2);
     int msb = value/100;
    int lsb = value - msb*100; //normalizzazione della temperatura
-    printf("TMP: %d . %d\n °C", msb,lsb);*/
+    printf("TMP: %d . %d\n °C", msb,lsb);
 
     value = bme_280_sensor.value(4);
     int hd = value/1024;

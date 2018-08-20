@@ -44,7 +44,7 @@
 #define OTP 'o'
 
 #define N_VALUES_NODE 10
-#define N_MAX_NODES 3
+#define N_MAX_NODES 4
 // Socket
 static struct simple_udp_connection udp_conn;
 // Destination IP address
@@ -169,7 +169,7 @@ PROCESS_THREAD(sending_acc_gyro, ev, data) {
   static bool yet_lock=false;
   static struct etimer t;
   PROCESS_BEGIN();
-  etimer_set(&t, CLOCK_SECOND);  
+  etimer_set(&t, 27*(CLOCK_SECOND/1000));  
 while(true){ 
     PROCESS_WAIT_EVENT_UNTIL(etimer_expired(&t));
 
@@ -233,7 +233,7 @@ PROCESS_THREAD(sensors_networking_client, ev, data) {
   simple_udp_register(&udp_conn, UDP_CLIENT_PORT, NULL, UDP_SERVER_PORT, udp_rx_callback);
 
   // Initialize timer
-  etimer_set(&periodic_timer, 20 * CLOCK_SECOND);
+  etimer_set(&periodic_timer, 60 * CLOCK_SECOND);
 
   // Timer needed in order to configure BME280 sensors
   etimer_set(&config_timer, 2 * CLOCK_SECOND);
@@ -277,7 +277,8 @@ PROCESS_THREAD(sensors_networking_client, ev, data) {
        printf("dentro acc\n");
         printf("sizeof %d\n", sizeof(node_pile_t));
       while(count_sample < 400 && count_pile_node< N_MAX_NODES) {
-           new_node = heapmem_alloc(sizeof(node_pile_t));
+         printf("count sample: %d count pile %d \n",count_sample,count_pile_node); 
+          new_node = heapmem_alloc(sizeof(node_pile_t));
 	   if (new_node==NULL){
              printf("e' fallita la malloc %u\n",count_sample);
             heapmem_stats(&heap_stat);
@@ -288,7 +289,7 @@ PROCESS_THREAD(sensors_networking_client, ev, data) {
             printf("chunks %d\n",heap_stat.chunks);
               }
            else{
-           printf("inizio delle rilevazioni");
+           printf("inizio delle rilevazioni. pila: %d\n",count_pile_node);
            for(i=0;i<N_VALUES_NODE;i++) {
                PROCESS_WAIT_EVENT_UNTIL(etimer_expired(&sample_timer));
 
@@ -316,7 +317,7 @@ PROCESS_THREAD(sensors_networking_client, ev, data) {
            
            count_pile_node++;
            mutex_unlock(&sem);
-           printf("rilasciato il mutex preso per scrivere da gyro\n");          
+           printf("rilasciato il mutex preso per scrivere da acc\n");          
 }
        count_sample++;
       }
@@ -338,7 +339,8 @@ PROCESS_THREAD(sensors_networking_client, ev, data) {
         printf("dentro gyro\n");
         printf("count %u\n",count);
         while(count_sample < 400 && count_pile_node< N_MAX_NODES) {
-            new_node = heapmem_alloc(sizeof(node_pile_t));
+          printf("count sample: %d count pile %d \n",count_sample,count_pile_node);  
+          new_node = heapmem_alloc(sizeof(node_pile_t));
            if( new_node==NULL){
               printf("è fallita la malloc %u\n",count_sample);
             heapmem_stats(&heap_stat);
@@ -349,7 +351,7 @@ PROCESS_THREAD(sensors_networking_client, ev, data) {
             printf("chunks %d\n",heap_stat.chunks);
 }
            else{
-              printf("dentro campionamento\n");
+              printf("dentro campionamento. pila: %d\n",count_pile_node);
             for(i=0;i<N_VALUES_NODE;i++) {
                 PROCESS_WAIT_EVENT_UNTIL(etimer_expired(&sample_timer));
 
