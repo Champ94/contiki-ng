@@ -162,7 +162,7 @@ PROCESS_THREAD(printer,ev,data){
 	PROCESS_WAIT_EVENT_UNTIL(etimer_expired(&t));
         mutex_try_lock(&sem);
 	yet_lock=true;
-        if(head!=NULL){
+	if(head!=NULL){
 	mutex_unlock(&sem);
 	yet_lock=false;
     for(uint8_t i=0; i<N_VALUES_NODE;i++){
@@ -177,12 +177,13 @@ PROCESS_THREAD(printer,ev,data){
         heapmem_free(garbage);
         count_pile_node--;	
 	}
-        if(yet_lock){
+	if(yet_lock){
             mutex_unlock(&sem);
         }
 
-}}
+    }
 }
+
 /*---------------------------------------------------------------------------*/
 PROCESS_THREAD(udp_server_process, ev, data)
 {
