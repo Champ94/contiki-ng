@@ -168,6 +168,7 @@ PROCESS_THREAD(sending_acc_gyro, ev, data) {
   static char type;
   static bool yet_lock=false;
   static struct etimer t;
+  static uint16_t inviati=0;
   PROCESS_BEGIN();
   etimer_set(&t, 27*(CLOCK_SECOND/1000));  
 while(true){ 
@@ -188,7 +189,8 @@ while(true){
       // printf("rilascio mutex in sending pre invio\n");
       yet_lock=false;
       if (send_acc_or_gyro(build_acc_or_gyro_packet(copy_head_data, type))) {
-        printf("invio riuscito di %c\n",type);
+inviati=inviati+10;        
+printf("invio riuscito di %c n %d\n",type,inviati);
       //  while (!mutex_try_lock(&sem));
         printf ("ris mutex 2 %d\n",mutex_try_lock(&sem));
         yet_lock=true;

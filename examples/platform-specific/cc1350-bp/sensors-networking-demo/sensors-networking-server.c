@@ -78,7 +78,7 @@ typedef struct packet_acc_gyro {
 
 typedef struct pile{
 	packet_acc_gyro_t pack;	
-	struct packet_acc_gyro *next;
+	struct pile *next;
 }pile_t;
 
 static uint8_t count_pile_node=0;
@@ -102,13 +102,17 @@ udp_rx_callback(struct simple_udp_connection *c,
     packet_acc_gyro_t *packet_acc_gyr;
     packet_sensor_t *packet_sens;
     pile_t *new_node;
+    pile_t *tmp;
+    heapmem_stats_t heap_stat;
 char *d=(char *)data;
  printf("ty %c \n",d[0]);
- if(d[0]==GYRO || d[0]==ACC){
+printf("Arrivato messaggio \n"); 
+if(d[0]==GYRO || d[0]==ACC){
      packet_acc_gyr=(packet_acc_gyro_t *)data;
+     if(count_pile_node<N_MAX_NODES){
       new_node = heapmem_alloc(sizeof(pile_t));
 	   if (new_node==NULL){
-             printf("e' fallita la malloc %u\n",count_sample);
+             printf("e' fallita la malloc \n");
             heapmem_stats(&heap_stat);
             printf("allocated %d\n",heap_stat.allocated);
             printf("overhead %d\n",heap_stat.overhead);
@@ -139,13 +143,13 @@ char *d=(char *)data;
            mutex_unlock(&sem);
 		}	
 
-
+	}else{printf("over count %d\n",count_pile_node);}
  }else {
      packet_sens= (packet_sensor_t *)data;
      printf("Type: %c, ID_NODO: %c, val: %d \n",packet_sens->type,packet_sens->id_node,packet_sens->data_s);
  }
 
-  printf("Arrivato messaggio \n");
+  
   //LOG_INFO_6ADDR(sender_addr);
   //LOG_INFO_("\n");
 
@@ -153,14 +157,18 @@ char *d=(char *)data;
 /*---------------------------------------------------------------------------*/
 PROCESS_THREAD(printer,ev,data){
 	static struct etimer t;	
-	etimer_set(&t, 30*(CLOCK_SECOND/1000)); 
+	
 	static bool yet_lock=false;
-        static pile_t *tmp;
+        static void *tmp;
         static pile_t *garbage;
-	static uint16_t riv=0;	
+	static uint16_t riv=0;
+              
+	PROCESS_BEGIN();
+        etimer_set(&t, 10*(CLOCK_SECOND/1000)); 		
 	while(1){
 	PROCESS_WAIT_EVENT_UNTIL(etimer_expired(&t));
         mutex_try_lock(&sem);
+        //printf("mutex preso\n");
 	yet_lock=true;
 	if(head!=NULL){
 	mutex_unlock(&sem);
@@ -180,8 +188,9 @@ PROCESS_THREAD(printer,ev,data){
 	if(yet_lock){
             mutex_unlock(&sem);
         }
-
+	etimer_reset(&t);
     }
+PROCESS_END();
 }
 
 /*---------------------------------------------------------------------------*/
