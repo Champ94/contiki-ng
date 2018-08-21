@@ -33,6 +33,10 @@
 #include "net/ipv6/simple-udp.h"
 #include "inttypes.h"
 #include "sys/log.h"
+
+#include "heapmem.h"
+#include "mutex.h"
+
 #define LOG_MODULE "App"
 #define LOG_LEVEL LOG_LEVEL_INFO
 
@@ -78,7 +82,7 @@ typedef struct pile{
 }pile_t;
 
 static uint8_t count_pile_node=0;
-static pile_t *head;
+static pile_t *head=NULL;
 static mutex_t sem; //mutex to sync access to pile
 uint16_t riv=0;
 PROCESS(printer, "Printer values");
@@ -113,9 +117,26 @@ char *d=(char *)data;
             printf("chunks %d\n",heap_stat.chunks);
               }
            else{
-		new_node->
-		
-		
+		new_node->pack.type=packet_acc_gyr->type;
+		new_node->pack.id_node=packet_acc_gyr->id_node;
+		for(uint8_t i=0; i<N_VALUES_NODE;i++) {
+		    new_node->pack.data[i].axes[0]=packet_acc_gyr->data[i].axes[0];
+            new_node->pack.data[i].axes[1]=packet_acc_gyr->data[i].axes[1];
+            new_node->pack.data[i].axes[2]=packet_acc_gyr->data[i].axes[2];
+		}
+		mutex_try_lock(&sem);
+
+		if(head==NULL){
+		    head=new_node;
+            count_pile_node++;
+		}else{
+            if(count_pile_node<N_MAX_NODES) {
+                for (tmp = head; tmp->next != NULL; tmp = tmp->next);
+                tmp->next = new_node;
+                count_pile_node++;
+            }
+		}
+           mutex_unlock(&sem);
 		}	
 
 
@@ -146,7 +167,8 @@ PROCESS_THREAD(printer,ev,data){
 	yet_lock=false;
     for(uint8_t i=0; i<N_VALUES_NODE;i++){
      riv++;
-     printf("Num: %d Type: %c, ID_NODO: %u, val x: %d, y: %d, z: %d \n",riv,head->type,head->id_node, head->data[i].axes[0], head->data[i].axes[1], head->data[i].axes[2]);}
+     printf("Num: %d Type: %c, ID_NODO: %u, val x: %d, y: %d, z: %d \n",riv,head->pack.type,head->pack.id_node, head->pack.data[i].axes[0],
+            head->pack.data[i].axes[1], head->pack.data[i].axes[2]);}
 	mutex_try_lock(&sem);
         yet_lock=true;
         tmp=head->next; 
@@ -155,10 +177,11 @@ PROCESS_THREAD(printer,ev,data){
         heapmem_free(garbage);
         count_pile_node--;	
 	}
-	}
-	if(yet_lock){
-         mutex_unlock(&sem);  
-}
+        if(yet_lock){
+            mutex_unlock(&sem);
+        }
+
+}}
 }
 /*---------------------------------------------------------------------------*/
 PROCESS_THREAD(udp_server_process, ev, data)
