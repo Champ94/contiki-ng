@@ -146,7 +146,21 @@ if(d[0]==GYRO || d[0]==ACC){
 	}else{printf("over count %d\n",count_pile_node);}
  }else {
      packet_sens= (packet_sensor_t *)data;
-     printf("Type: %c, ID_NODO: %c, val: %d \n",packet_sens->type,packet_sens->id_node,packet_sens->data_s);
+     if(packet_sens->type==TEMP_INFRA){
+     printf("Type: %c, ID_NODO: %c, val: %d.%03d \n",packet_sens->type,packet_sens->id_node,packet_sens->data_s/1000,packet_sens->data_s % 1000);}
+    else if(packet_sens->type==TEMP){
+	printf("Type: %c, ID_NODO: %c, val: %d.%d \n",packet_sens->type,packet_sens->id_node,packet_sens->data_s/100,packet_sens->data_s % 100);
+	}
+	else if(packet_sens->type==PRESS){
+	printf("Type: %c, ID_NODO: %c, val: %u.%u \n",packet_sens->type,packet_sens->id_node,packet_sens->data_s/100,packet_sens->data_s % 100);
+	}
+	else if(packet_sens->type==HUM){
+	printf("Type: %c, ID_NODO: %c, val: %d.%d \n",packet_sens->type,packet_sens->id_node,packet_sens->data_s/1024,packet_sens->data_s % 1024);
+	}
+	else if(packet_sens->type==OTP){
+	printf("Type: %c, ID_NODO: %c, val: %d.%02d \n",packet_sens->type,packet_sens->id_node,packet_sens->data_s/100,packet_sens->data_s % 100);
+	}
+
  }
 
   

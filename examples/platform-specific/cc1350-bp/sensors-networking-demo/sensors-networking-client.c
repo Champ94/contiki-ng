@@ -170,7 +170,7 @@ PROCESS_THREAD(sending_acc_gyro, ev, data) {
   static struct etimer t;
   static uint16_t inviati=0;
   PROCESS_BEGIN();
-  etimer_set(&t, 27*(CLOCK_SECOND/1000));  
+  etimer_set(&t, 53*(CLOCK_SECOND/1000)); //27 
 while(true){ 
     PROCESS_WAIT_EVENT_UNTIL(etimer_expired(&t));
 
@@ -217,6 +217,7 @@ PROCESS_THREAD(sensors_networking_client, ev, data) {
   static struct etimer periodic_timer;
   static struct etimer config_timer;
   static struct etimer sample_timer;
+  static struct etimer config_timer_opt;
   static uint8_t count = 0;
   static int16_t count_sample = 0;
   static uint8_t i;
@@ -231,11 +232,13 @@ PROCESS_THREAD(sensors_networking_client, ev, data) {
   //static acc_gyr_payload_t acc_gyr_payload[99
           PROCESS_BEGIN();
 
-  // Initialize UDP connection
+   SENSORS_ACTIVATE(tmp_007_sensor);//Init tmp controllare la config negli header
+   etimer_set(&config_timer_opt, 4*CLOCK_SECOND);
+   // Initialize UDP connection
   simple_udp_register(&udp_conn, UDP_CLIENT_PORT, NULL, UDP_SERVER_PORT, udp_rx_callback);
 
   // Initialize timer
-  etimer_set(&periodic_timer, 60 * CLOCK_SECOND);
+  etimer_set(&periodic_timer, 20 * CLOCK_SECOND);
 
   // Timer needed in order to configure BME280 sensors
   etimer_set(&config_timer, 2 * CLOCK_SECOND);
@@ -249,10 +252,20 @@ PROCESS_THREAD(sensors_networking_client, ev, data) {
     count_sample=0;
    if (count ==6) {
       // Temp Infra
+      tmp_007_sensor.value(TMP_007_SENSOR_TYPE_ALL);
       value_i = tmp_007_sensor.value(TMP_007_SENSOR_TYPE_OBJECT);
       printf("infra %d\n",value_i);
       packet_sensor_impl = build_general_sensor_packet(value_i, value_u, TEMP_INFRA);
       send_general_sensor(packet_sensor_impl);
+
+      //OPT
+      SENSORS_ACTIVATE(opt_3001_sensor);
+      PROCESS_WAIT_EVENT_UNTIL(etimer_expired(&config_timer_opt));
+      value_i = opt_3001_sensor.value(0);
+      printf("opt %d\n",value_i);
+      packet_sensor_impl = build_general_sensor_packet(value_i, value_u, OTP);
+      send_general_sensor(packet_sensor_impl);
+      etimer_reset(&config_timer_opt);
 
       // Temp BME
       value_i = bme_280_sensor.value(2);
