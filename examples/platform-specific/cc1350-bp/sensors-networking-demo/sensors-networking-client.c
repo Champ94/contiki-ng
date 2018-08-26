@@ -33,7 +33,7 @@
 #define UDP_SERVER_PORT	5678
 
 // HARDCODED BS
-#define NODE_ID 'f'
+#define NODE_ID 'm'
 
 #define GYRO 'g'
 #define ACC 'a'

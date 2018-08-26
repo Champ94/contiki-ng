@@ -105,8 +105,8 @@ udp_rx_callback(struct simple_udp_connection *c,
     pile_t *tmp;
     heapmem_stats_t heap_stat;
 char *d=(char *)data;
- printf("ty %c \n",d[0]);
-printf("Arrivato messaggio \n"); 
+ //printf("ty %c \n",d[0]);
+//printf("Arrivato messaggio \n"); 
 if(d[0]==GYRO || d[0]==ACC){
      packet_acc_gyr=(packet_acc_gyro_t *)data;
      if(count_pile_node<N_MAX_NODES){
@@ -147,18 +147,18 @@ if(d[0]==GYRO || d[0]==ACC){
  }else {
      packet_sens= (packet_sensor_t *)data;
      if(packet_sens->type==TEMP_INFRA){
-     printf("Type: %c, ID_NODO: %c, val: %d.%03d \n",packet_sens->type,packet_sens->id_node,packet_sens->data_s/1000,packet_sens->data_s % 1000);}
+     printf("[\"IRT\",\" %c\", %d.%03d] \n",packet_sens->id_node,packet_sens->data_s/1000,packet_sens->data_s % 1000);}
     else if(packet_sens->type==TEMP){
-	printf("Type: %c, ID_NODO: %c, val: %d.%d \n",packet_sens->type,packet_sens->id_node,packet_sens->data_s/100,packet_sens->data_s % 100);
+	printf("[\"TEM\",\"%c\", %d.%d]\n",packet_sens->id_node,packet_sens->data_s/100,packet_sens->data_s % 100);
 	}
 	else if(packet_sens->type==PRESS){
-	printf("Type: %c, ID_NODO: %c, val: %u.%u \n",packet_sens->type,packet_sens->id_node,packet_sens->data_s/100,packet_sens->data_s % 100);
+	printf("[\"PRE\",\" %c\", %u.%u] \n",packet_sens->id_node,packet_sens->data_s/100,packet_sens->data_s % 100);
 	}
 	else if(packet_sens->type==HUM){
-	printf("Type: %c, ID_NODO: %c, val: %d.%d \n",packet_sens->type,packet_sens->id_node,packet_sens->data_s/1024,packet_sens->data_s % 1024);
+	printf("[\"HUM\",\"%c\",%d.%d] \n",packet_sens->id_node,packet_sens->data_s/1024,packet_sens->data_s % 1024);
 	}
 	else if(packet_sens->type==OTP){
-	printf("Type: %c, ID_NODO: %c, val: %d.%02d \n",packet_sens->type,packet_sens->id_node,packet_sens->data_s/100,packet_sens->data_s % 100);
+	printf("[\"LIG\",\"%c\", %d.%02d] \n",packet_sens->id_node,packet_sens->data_s/100,packet_sens->data_s % 100);
 	}
 
  }
@@ -189,7 +189,7 @@ PROCESS_THREAD(printer,ev,data){
 	yet_lock=false;
     for(uint8_t i=0; i<N_VALUES_NODE;i++){
      riv++;
-     printf("Num: %d Type: %c, ID_NODO: %u, val x: %d, y: %d, z: %d \n",riv,head->pack.type,head->pack.id_node, head->pack.data[i].axes[0],
+     printf("[\"ACC\",\" %c \",%d,%d,%d] \n",/*riv,head->pack.type,*/head->pack.id_node, head->pack.data[i].axes[0],
             head->pack.data[i].axes[1], head->pack.data[i].axes[2]);}
 	mutex_try_lock(&sem);
         yet_lock=true;
