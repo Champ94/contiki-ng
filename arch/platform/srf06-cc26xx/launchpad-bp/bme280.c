@@ -1310,12 +1310,11 @@ int value(int type)
 
     // 1:press; 2:temp; 4:hum; 7:all;
     uint8_t sensorType = (uint8_t)type;
-    uint8_t opmode;
+    //uint8_t opmode;
+
     // output
     struct bme280_data *dataPointer, data;
     dataPointer = &data;
-    printf("Result lettura della modalità %u\n",bme280_get_sensor_mode(&opmode,&bme_280_sensor_struct));
-    printf("Mode %u \n",opmode);
     isSuccessfulReading = bme280_get_sensor_data(type, dataPointer, &bme_280_sensor_struct);
 
     if(isSuccessfulReading) {
@@ -1350,17 +1349,18 @@ int8_t bme280_i2c_write(uint8_t dev_id, uint8_t reg_addr, uint8_t *reg_data, uin
     return rslt;
 }
 
-void ctimer_callback(void *ptr) {
-   printf("fine del timer\n");
+void ctimer_callback(void *ptr)
+{
     return;
 }
 
-void bme280_wait_ms(uint32_t ms) {
-
+void bme280_wait_ms(uint32_t ms)
+{
     ctimer_set(&timer_ctimer, CLOCK_SECOND*10, ctimer_callback, NULL);
 }
 
-int configure(int type, int value) {
+int configure(int type, int value)
+{
     int8_t successfulConfigure = -1;
 
     bme_280_sensor_struct.dev_id = BME280_I2C_ADDR_SEC;
@@ -1376,15 +1376,17 @@ int configure(int type, int value) {
     bme_280_sensor_struct.settings=mysettings;
     bme_280_sensor_struct.calib_data=calibdata;
     successfulConfigure = bme280_init(&bme_280_sensor_struct);
-    
-    printf("Set osr_p %u\n",bme280_set_sensor_settings(BME280_OSR_PRESS_SEL,&bme_280_sensor_struct));
-printf("Set osr_t %u\n",bme280_set_sensor_settings(BME280_OSR_TEMP_SEL,&bme_280_sensor_struct));
-printf("Set osr_h %u\n",bme280_set_sensor_settings(BME280_OSR_HUM_SEL,&bme_280_sensor_struct));
-printf("Set filter %u\n",bme280_set_sensor_settings(BME280_FILTER_SEL,&bme_280_sensor_struct));
-printf("Set standby %u\n",bme280_set_sensor_settings(BME280_STANDBY_SEL,&bme_280_sensor_struct));
-bme280_set_sensor_mode(3,&bme_280_sensor_struct); /*
-printf("dig_t1 %u\n",bme_280_sensor_struct.calib_data.dig_T1);
-printf("dig_T2 %"PRIu16"\n",bme_280_sensor_struct.calib_data.dig_T2);*/
+    bme280_set_sensor_settings(BME280_OSR_PRESS_SEL,&bme_280_sensor_struct);
+
+    bme280_set_sensor_settings(BME280_OSR_TEMP_SEL,&bme_280_sensor_struct);
+
+    bme280_set_sensor_settings(BME280_OSR_HUM_SEL,&bme_280_sensor_struct);
+
+    bme280_set_sensor_settings(BME280_FILTER_SEL,&bme_280_sensor_struct);
+
+    bme280_set_sensor_settings(BME280_STANDBY_SEL,&bme_280_sensor_struct);
+
+    bme280_set_sensor_mode(3, &bme_280_sensor_struct);
 
     return successfulConfigure;
 }
@@ -1394,7 +1396,8 @@ int status(int type)
     return 1;
 }
 
-uint8_t start_get_calib(){
+uint8_t start_get_calib()
+{
       return get_calib_data(&bme_280_sensor_struct);
 }
 
