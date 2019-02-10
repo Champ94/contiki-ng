@@ -1,242 +1,164 @@
 /*
- * Copyright (c) 2016, Texas Instruments Incorporated - http://www.ti.com/
+ * Copyright (c) 2015-2018, Texas Instruments Incorporated
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
  * are met:
- * 1. Redistributions of source code must retain the above copyright
+ *
+ * *  Redistributions of source code must retain the above copyright
  *    notice, this list of conditions and the following disclaimer.
- * 2. Redistributions in binary form must reproduce the above copyright
+ *
+ * *  Redistributions in binary form must reproduce the above copyright
  *    notice, this list of conditions and the following disclaimer in the
  *    documentation and/or other materials provided with the distribution.
- * 3. Neither the name of the copyright holder nor the names of its
- *    contributors may be used to endorse or promote products derived
+ *
+ * *  Neither the name of Texas Instruments Incorporated nor the names of
+ *    its contributors may be used to endorse or promote products derived
  *    from this software without specific prior written permission.
  *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
- * FOR A PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE
- * COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
- * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
- * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
- * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
- * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
- * STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
- * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
- * OF THE POSSIBILITY OF SUCH DAMAGE.
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+ * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+ * OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+ * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-/*---------------------------------------------------------------------------*/
-/** \addtogroup launchpad-peripherals
- * @{
- *
- * \defgroup launchpad-cc1350-specific CC1350 LaunchPad Peripherals
- *
- * Defines related to the CC1350 LaunchPad
- *
- * This file provides connectivity information on LEDs, Buttons, UART and
- * other peripherals
- *
- * This file is not meant to be modified by the user.
- * @{
- *
- * \file
- * Header file with definitions related to the I/O connections on the TI
- * CC1350 LaunchPad
- *
- * \note   Do not include this file directly. It gets included by contiki-conf
- *         after all relevant directives have been set.
- */
-/*---------------------------------------------------------------------------*/
-#ifndef BOARD_H_
-#define BOARD_H_
-/*---------------------------------------------------------------------------*/
-#include "ioc.h"
-/*---------------------------------------------------------------------------*/
-/**
- * \name LED HAL configuration
- *
- * Those values are not meant to be modified by the user
- * @{
- */
-#define LEDS_CONF_COUNT                 2
-#define LEDS_CONF_RED                   1
-#define LEDS_CONF_GREEN                 2
-/** @} */
-/*---------------------------------------------------------------------------*/
-/**
- * \name LED IOID mappings
- *
- * Those values are not meant to be modified by the user
- * @{
- */
-#define BOARD_IOID_LED_1          IOID_6
-#define BOARD_IOID_LED_2          IOID_7
-/** @} */
-/*---------------------------------------------------------------------------*/
-/**
- * \name UART IOID mapping
- *
- * Those values are not meant to be modified by the user
- * @{
- */
-#define BOARD_IOID_UART_RX        IOID_2
-#define BOARD_IOID_UART_TX        IOID_3
-#define BOARD_IOID_UART_RTS       IOID_18
-#define BOARD_IOID_UART_CTS       IOID_19
-#define BOARD_UART_RX             (1 << BOARD_IOID_UART_RX)
-#define BOARD_UART_TX             (1 << BOARD_IOID_UART_TX)
-#define BOARD_UART_RTS            (1 << BOARD_IOID_UART_RTS)
-#define BOARD_UART_CTS            (1 << BOARD_IOID_UART_CTS)
-/** @} */
-/*---------------------------------------------------------------------------*/
-/**
- * \name Button IOID mapping
- *
- * Those values are not meant to be modified by the user
- * @{
- */
-#define BOARD_IOID_KEY_LEFT       IOID_13
-#define BOARD_IOID_KEY_RIGHT      IOID_14
-#define BOARD_KEY_LEFT            (1 << BOARD_IOID_KEY_LEFT)
-#define BOARD_KEY_RIGHT           (1 << BOARD_IOID_KEY_RIGHT)
-/** @} */
-/*---------------------------------------------------------------------------*/
-/**
- * \name External flash IOID mapping
- *
- * Those values are not meant to be modified by the user
- * @{
- */
-#define EXT_FLASH_SPI_CONTROLLER    SPI_CONTROLLER_SPI0
 
-#define BOARD_IOID_FLASH_SCK        IOID_10
-#define BOARD_IOID_FLASH_MOSI       IOID_9
-#define BOARD_IOID_FLASH_MISO       IOID_8
-#define BOARD_IOID_FLASH_CS         IOID_20
+#ifndef __BOARD_H
+#define __BOARD_H
 
-#define EXT_FLASH_SPI_PIN_SCK       10
-#define EXT_FLASH_SPI_PIN_MOSI      9
-#define EXT_FLASH_SPI_PIN_MISO      8
-#define EXT_FLASH_SPI_PIN_CS        20
+#define Board_CC1350_LAUNCHXL
+#define BOARD_STRING    "TI CC1350 LaunchPad"
 
-#define EXT_FLASH_DEVICE_ID         0x14
-#define EXT_FLASH_MID               0xC2
-
-#define EXT_FLASH_PROGRAM_PAGE_SIZE 256
-#define EXT_FLASH_ERASE_SECTOR_SIZE 4096
-/*---------------------------------------------------------------------------*/
-/**
- * \brief I2C IOID mappings
- *
- * Those values are not meant to be modified by the user
- * @{
- */
-#define BOARD_IOID_SCL            IOID_4
-#define BOARD_IOID_SDA            IOID_5
-/** @} */
-/*---------------------------------------------------------------------------*/
-/**
- * \brief CC1350LP RF Switch
- *
- * Those values are not meant to be modified by the user
- * @{
- */
-#define RF_SWITCH_CONF_ENABLE     1
-/** @} */
-/*---------------------------------------------------------------------------*/
-/**
- * \brief TMP Sensor
- *
- * Those values are not meant to be modified by the user
- * @{
- */
-#define BOARD_IOID_TMP_RDY          IOID_14
-/** @} */
-/*---------------------------------------------------------------------------*/
-/**
- * \brief TX power settings
- *
- * Those values are not meant to be modified by the user
- * @{
- */
-#define PROP_MODE_CONF_TX_POWER_779_930 tx_power_driver_779_930
-/** @} */
-/*---------------------------------------------------------------------------*/
-/**
- * \brief ROM bootloader configuration
- *
- * Change SET_CCFG_BL_CONFIG_BL_PIN_NUMBER to BOARD_IOID_KEY_xyz to select
- * which button triggers the bootloader on reset.
- *
- * The remaining values are not meant to be modified by the user
- * @{
- */
-#if ROM_BOOTLOADER_ENABLE
-#define SET_CCFG_BL_CONFIG_BOOTLOADER_ENABLE            0xC5
-#define SET_CCFG_BL_CONFIG_BL_LEVEL                     0x00
-#define SET_CCFG_BL_CONFIG_BL_PIN_NUMBER                BOARD_IOID_KEY_LEFT
-#define SET_CCFG_BL_CONFIG_BL_ENABLE                    0xC5
-#else
-#define SET_CCFG_BL_CONFIG_BOOTLOADER_ENABLE            0x00
-#define SET_CCFG_BL_CONFIG_BL_LEVEL                     0x01
-#define SET_CCFG_BL_CONFIG_BL_PIN_NUMBER                0xFF
-#define SET_CCFG_BL_CONFIG_BL_ENABLE                    0xFF
+#ifdef __cplusplus
+extern "C" {
 #endif
-/** @} */
-/*---------------------------------------------------------------------------*/
-/**
- * \brief Remaining pins
- *
- * Those values are not meant to be modified by the user
- * @{
- */
-#define BOARD_IOID_CS             IOID_11
-#define BOARD_IOID_TDO            IOID_16
-#define BOARD_IOID_TDI            IOID_17
-#define BOARD_IOID_DIO12          IOID_12
-#define BOARD_IOID_DIO15          IOID_15
-#define BOARD_IOID_DIO21          IOID_21
-#define BOARD_IOID_DIO22          IOID_22
-#define BOARD_IOID_DIO23          IOID_23
-#define BOARD_IOID_DIO24          IOID_24
-#define BOARD_IOID_DIO25          IOID_25
-#define BOARD_IOID_DIO26          IOID_26
-#define BOARD_IOID_DIO27          IOID_27
-#define BOARD_IOID_DIO28          IOID_28
-#define BOARD_IOID_DIO29          IOID_29
-#define BOARD_IOID_DIO30          IOID_30
 
-#define BOARD_UNUSED_PINS { \
-    BOARD_IOID_CS, BOARD_IOID_TDO, BOARD_IOID_TDI, BOARD_IOID_DIO12, \
-    BOARD_IOID_DIO21, BOARD_IOID_DIO22, BOARD_IOID_DIO23, \
-    BOARD_IOID_DIO24, BOARD_IOID_DIO25, BOARD_IOID_DIO26, BOARD_IOID_DIO27, \
-    BOARD_IOID_DIO28, BOARD_IOID_DIO29, \
-    IOID_UNUSED \
-  }
-/** @} */
-/*---------------------------------------------------------------------------*/
-/**
- * \brief Board indices for the button HAL
- *
- * Those values are not meant to be modified by the user
- * @{
+#include "CC1350_LAUNCHXL.h"
+
+#define Board_initGeneral()      CC1350_LAUNCHXL_initGeneral()
+#define Board_shutDownExtFlash() CC1350_LAUNCHXL_shutDownExtFlash()
+#define Board_wakeUpExtFlash()   CC1350_LAUNCHXL_wakeUpExtFlash()
+
+/* These #defines allow us to reuse TI-RTOS across other device families */
+
+#define Board_ADC0              CC1350_LAUNCHXL_ADC0
+#define Board_ADC1              CC1350_LAUNCHXL_ADC1
+
+#define Board_ADCBUF0           CC1350_LAUNCHXL_ADCBUF0
+#define Board_ADCBUF0CHANNEL0   CC1350_LAUNCHXL_ADCBUF0CHANNEL0
+#define Board_ADCBUF0CHANNEL1   CC1350_LAUNCHXL_ADCBUF0CHANNEL1
+
+#define Board_CRYPTO0           CC1350_LAUNCHXL_CRYPTO0
+
+#define Board_DIO0              CC1350_LAUNCHXL_DIO0
+#define Board_DIO1_RFSW         CC1350_LAUNCHXL_DIO1_RF_SUB1GHZ
+#define Board_DIO12             CC1350_LAUNCHXL_DIO12
+#define Board_DIO15             CC1350_LAUNCHXL_DIO15
+#define Board_DIO16_TDO         CC1350_LAUNCHXL_DIO16_TDO
+#define Board_DIO17_TDI         CC1350_LAUNCHXL_DIO17_TDI
+#define Board_DIO21             CC1350_LAUNCHXL_DIO21
+#define Board_DIO22             CC1350_LAUNCHXL_DIO22
+#define Board_DIO30_SWPWR       CC1350_LAUNCHXL_DIO30_RF_POWER
+
+#define Board_DIO23_ANALOG      CC1350_LAUNCHXL_DIO23_ANALOG
+#define Board_DIO24_ANALOG      CC1350_LAUNCHXL_DIO24_ANALOG
+#define Board_DIO25_ANALOG      CC1350_LAUNCHXL_DIO25_ANALOG
+#define Board_DIO26_ANALOG      CC1350_LAUNCHXL_DIO26_ANALOG
+#define Board_DIO27_ANALOG      CC1350_LAUNCHXL_DIO27_ANALOG
+#define Board_DIO28_ANALOG      CC1350_LAUNCHXL_DIO28_ANALOG
+#define Board_DIO29_ANALOG      CC1350_LAUNCHXL_DIO29_ANALOG
+#define Board_DIO30_ANALOG      CC1350_LAUNCHXL_DIO30_ANALOG
+
+/*
+ *  Board_RF_SUB1GHZ and Board_RF_POWER are the names generated by SysConfig.
+ *  Define them here so that RF callback function can reference them.
  */
-#define BOARD_BUTTON_HAL_INDEX_KEY_LEFT   0x00
-#define BOARD_BUTTON_HAL_INDEX_KEY_RIGHT  0x01
-/** @} */
-/*---------------------------------------------------------------------------*/
-/**
- * \name Device string used on startup
- * @{
- */
-#define BOARD_STRING "TI CC1350 LaunchPad"
-/** @} */
-/*---------------------------------------------------------------------------*/
-#endif /* BOARD_H_ */
-/*---------------------------------------------------------------------------*/
-/**
- * @}
- * @}
- */
+#define Board_RF_SUB1GHZ        CC1350_LAUNCHXL_DIO1_RF_SUB1GHZ
+#define Board_RF_POWER          CC1350_LAUNCHXL_DIO30_RF_POWER
+
+#define Board_GPIO_BUTTON0      CC1350_LAUNCHXL_GPIO_S1
+#define Board_GPIO_BUTTON1      CC1350_LAUNCHXL_GPIO_S2
+#define Board_GPIO_BTN1         CC1350_LAUNCHXL_GPIO_S1
+#define Board_GPIO_BTN2         CC1350_LAUNCHXL_GPIO_S2
+#define Board_GPIO_LED0         CC1350_LAUNCHXL_GPIO_LED_RED
+#define Board_GPIO_LED1         CC1350_LAUNCHXL_GPIO_LED_GREEN
+#define Board_GPIO_RLED         CC1350_LAUNCHXL_GPIO_LED_RED
+#define Board_GPIO_GLED         CC1350_LAUNCHXL_GPIO_LED_GREEN
+#define Board_GPIO_LED_ON       CC1350_LAUNCHXL_GPIO_LED_ON
+#define Board_GPIO_LED_OFF      CC1350_LAUNCHXL_GPIO_LED_OFF
+
+#define Board_GPTIMER0A         CC1350_LAUNCHXL_GPTIMER0A
+#define Board_GPTIMER0B         CC1350_LAUNCHXL_GPTIMER0B
+#define Board_GPTIMER1A         CC1350_LAUNCHXL_GPTIMER1A
+#define Board_GPTIMER1B         CC1350_LAUNCHXL_GPTIMER1B
+#define Board_GPTIMER2A         CC1350_LAUNCHXL_GPTIMER2A
+#define Board_GPTIMER2B         CC1350_LAUNCHXL_GPTIMER2B
+#define Board_GPTIMER3A         CC1350_LAUNCHXL_GPTIMER3A
+#define Board_GPTIMER3B         CC1350_LAUNCHXL_GPTIMER3B
+
+#define Board_NVSINTERNAL       CC1350_LAUNCHXL_NVSCC26XX0
+#define Board_NVSEXTERNAL       CC1350_LAUNCHXL_NVSSPI25X0
+
+#define Board_I2C0              CC1350_LAUNCHXL_I2C0
+#define Board_I2C_TMP           CC1350_LAUNCHXL_I2C0
+
+#define Board_PIN_BUTTON0       CC1350_LAUNCHXL_PIN_BTN1
+#define Board_PIN_BUTTON1       CC1350_LAUNCHXL_PIN_BTN2
+#define Board_PIN_BTN1          CC1350_LAUNCHXL_PIN_BTN1
+#define Board_PIN_BTN2          CC1350_LAUNCHXL_PIN_BTN2
+#define Board_PIN_LED0          CC1350_LAUNCHXL_PIN_RLED
+#define Board_PIN_LED1          CC1350_LAUNCHXL_PIN_GLED
+#define Board_PIN_LED2          CC1350_LAUNCHXL_PIN_RLED
+#define Board_PIN_RLED          CC1350_LAUNCHXL_PIN_RLED
+#define Board_PIN_GLED          CC1350_LAUNCHXL_PIN_GLED
+
+#define Board_PWM0              CC1350_LAUNCHXL_PWM0
+#define Board_PWM1              CC1350_LAUNCHXL_PWM1
+#define Board_PWM2              CC1350_LAUNCHXL_PWM2
+#define Board_PWM3              CC1350_LAUNCHXL_PWM3
+#define Board_PWM4              CC1350_LAUNCHXL_PWM4
+#define Board_PWM5              CC1350_LAUNCHXL_PWM5
+#define Board_PWM6              CC1350_LAUNCHXL_PWM6
+#define Board_PWM7              CC1350_LAUNCHXL_PWM7
+
+#define Board_SD0               CC1350_LAUNCHXL_SDSPI0
+
+#define Board_SPI0              CC1350_LAUNCHXL_SPI0
+#define Board_SPI0_MISO         CC1350_LAUNCHXL_SPI0_MISO
+#define Board_SPI0_MOSI         CC1350_LAUNCHXL_SPI0_MOSI
+#define Board_SPI0_CLK          CC1350_LAUNCHXL_SPI0_CLK
+#define Board_SPI0_CSN          CC1350_LAUNCHXL_SPI0_CSN
+#define Board_SPI1              CC1350_LAUNCHXL_SPI1
+#define Board_SPI1_MISO         CC1350_LAUNCHXL_SPI1_MISO
+#define Board_SPI1_MOSI         CC1350_LAUNCHXL_SPI1_MOSI
+#define Board_SPI1_CLK          CC1350_LAUNCHXL_SPI1_CLK
+#define Board_SPI1_CSN          CC1350_LAUNCHXL_SPI1_CSN
+#define Board_SPI_FLASH_CS      CC1350_LAUNCHXL_SPI_FLASH_CS
+#define Board_FLASH_CS_ON       (0)
+#define Board_FLASH_CS_OFF      (1)
+
+#define Board_SPI_MASTER        CC1350_LAUNCHXL_SPI0
+#define Board_SPI_SLAVE         CC1350_LAUNCHXL_SPI0
+#define Board_SPI_MASTER_READY  CC1350_LAUNCHXL_SPI_MASTER_READY
+#define Board_SPI_SLAVE_READY   CC1350_LAUNCHXL_SPI_SLAVE_READY
+
+#define Board_UART0             CC1350_LAUNCHXL_UART0
+
+#define Board_WATCHDOG0         CC1350_LAUNCHXL_WATCHDOG0
+
+/* Board specific I2C addresses */
+#define Board_TMP_ADDR          (0x40)
+#define Board_SENSORS_BP_TMP_ADDR Board_TMP_ADDR
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif /* __BOARD_H */
