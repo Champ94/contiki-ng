@@ -64,14 +64,16 @@
  * project has specified otherwise. Depending on the final mode, determine a
  * default channel (again, if unspecified) and configure RDC params
  */
-#if CPU_FAMILY_CC13XX
+#if CPU_FAMILY_CC13X0
 #ifndef CC13XX_CONF_PROP_MODE
 #define CC13XX_CONF_PROP_MODE 1
 #endif /* CC13XX_CONF_PROP_MODE */
-#endif /* CPU_FAMILY_CC13XX */
+#endif /* CPU_FAMILY_CC13X0 */
 
 #if CC13XX_CONF_PROP_MODE
+#ifndef NETSTACK_CONF_RADIO
 #define NETSTACK_CONF_RADIO        prop_mode_driver
+#endif /* NETSTACK_CONF_RADIO */
 
 /* Channels count from 0 upwards in IEEE 802.15.4g */
 #ifndef IEEE802154_CONF_DEFAULT_CHANNEL
@@ -197,8 +199,14 @@
  * the chip to enter bootloader mode.
  * @{
  */
-#ifndef ROM_BOOTLOADER_ENABLE
-#define ROM_BOOTLOADER_ENABLE              1
+
+/* Backward compatibility */
+#ifdef ROM_BOOTLOADER_ENABLE
+#define CCXXWARE_CONF_ROM_BOOTLOADER_ENABLE ROM_BOOTLOADER_ENABLE
+#endif
+
+#ifndef CCXXWARE_CONF_ROM_BOOTLOADER_ENABLE
+#define CCXXWARE_CONF_ROM_BOOTLOADER_ENABLE              1
 #endif
 /** @} */
 /*---------------------------------------------------------------------------*/
