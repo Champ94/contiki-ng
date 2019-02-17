@@ -312,11 +312,14 @@ PROCESS_THREAD(sensors_networking_client, ev, data) {
                     printf("inizio delle rilevazioni. pila: %d\n", count_pile_node);
                     for (i = 0; i < N_VALUES_NODE; i++) {
                         PROCESS_WAIT_EVENT_UNTIL(etimer_expired( & sample_timer));
-
-                        bmi160_custom_value(1, & bmi160_datas, NULL);
+			bmi_160_sensor.value(1);
+                        bmi160_custom_value(1, &bmi160_datas, &bmi160_datas);
                         new_node -> n_pile[i].axes[0] = bmi160_datas.x;
+			printf("Datas.x %d\n",bmi160_datas.x);
                         new_node -> n_pile[i].axes[1] = bmi160_datas.y;
+printf("Datas.y %d\n",bmi160_datas.y);
                         new_node -> n_pile[i].axes[2] = bmi160_datas.z;
+printf("Datas.z %d\n",bmi160_datas.z);
 
                         etimer_reset( & sample_timer);
                         count_sample++;
@@ -363,7 +366,7 @@ PROCESS_THREAD(sensors_networking_client, ev, data) {
                     for (i = 0; i < N_VALUES_NODE; i++) {
                         PROCESS_WAIT_EVENT_UNTIL(etimer_expired( & sample_timer));
 
-                        bmi160_custom_value(2, & bmi160_datas, NULL);
+                        bmi160_custom_value(2, NULL, & bmi160_datas);
                         new_node -> n_pile[i].axes[0] = bmi160_datas.x;
                         new_node -> n_pile[i].axes[1] = bmi160_datas.y;
                         new_node -> n_pile[i].axes[2] = bmi160_datas.z;
