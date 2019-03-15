@@ -1,3 +1,14 @@
+# Mitreo project 2018/2019 notes - Politecnico di Milano
+We developed a new board for the platform srf06-cc26xx, named launchpad-bp (bp stands for BoosterPack).
+It can be found at arch/platform/srf06-cc26xx/launchpad-bp/. The only board supported as of now is TI CC1350.
+
+Drivers for BOSCH sensors are from the producer (https://github.com/BoschSensortec), updated to february 2018.
+Drivers for TI sensors (temperature and optical) are based on the ones for TI SensorTag (arch/platform/simplelink/cc13xx-cc26xx/sensortag/).
+
+The code is updated to the latest stable version of Contiki-NG, version 4.2 at the time of writing (commit 7b076e4af14b2259596f6d3765105d0593ae5257).
+
+Examples for each sensor and a demo of the application with further instructions can be found on the examples folder under platform-specific/cc1350-bp.
+
 # Contiki-NG: The OS for Next Generation IoT Devices
 
 [![Build Status](https://travis-ci.org/contiki-ng/contiki-ng.svg?branch=master)](https://travis-ci.org/contiki-ng/contiki-ng/branches)
