@@ -1,9 +1,9 @@
-##TMP007 Demo
+## TMP007 Demo
 This example demonstrates how measure ambient temperature or temperature of an object without having to be in contact with it.
 
 
 
-###Sensor reading
+### Sensor reading
 
 In order to read the BMI160, first of all, you have to call the following function
 
