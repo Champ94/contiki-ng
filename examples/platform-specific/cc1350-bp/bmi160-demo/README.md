@@ -1,8 +1,8 @@
-##BMI160 Demo
+## BMI160 Demo
 This example demonstrates how read accelerometer and gyroscope samples from BMI160 with CC1350 + Sensors Boosterpack
 
 
-###Sensor reading
+### Sensor reading
 
 In order to read the BMI160, first of all, you have to declare a variable of this struct
 
