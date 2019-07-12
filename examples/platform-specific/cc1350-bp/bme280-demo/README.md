@@ -1,7 +1,7 @@
-##BME280 Demo
+## BME280 Demo
 This example demonstrates how read temperature, pressure and humidity values from BME280 with CC1350 + Sensors Boosterpack
 
-###Sensor Init
+### Sensor Init
 Before read the values the sensor must be initialized calling the following functions:
 
 ```
@@ -12,7 +12,7 @@ and **after 2 seconds**
  start_get_calib()
 ```
 
-###Sensor reading
+### Sensor reading
 
 Use this function to read the sensor
 
