@@ -1,8 +1,8 @@
-##OPT3001 Demo
+## OPT3001 Demo
 This example demonstrates how measure intensity of visible light from OPT3001 with CC1350 + Sensors Boosterpack
 
 
-###Sensor reading
+### Sensor reading
 
 In order the read the values from the sensor you have to use this function
 
