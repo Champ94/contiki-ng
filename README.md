@@ -1,3 +1,6 @@
+# 2021 Update - Archiving
+We stopped working on the project, therefore we are no longer mantaining the drivers/changes contained in thi repo. Archiving.
+
 # Mitreo project 2018/2019 notes - Politecnico di Milano
 We developed a new board for the platform srf06-cc26xx, named launchpad-bp (bp stands for BoosterPack).
 It can be found at arch/platform/srf06-cc26xx/launchpad-bp/. The only board supported as of now is TI CC1350.
